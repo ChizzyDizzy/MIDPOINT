@@ -1,0 +1,43 @@
+{
+  "south_asian": {
+    "greeting": "Ayubowan!",
+    "use_formal_greeting": false,
+    "family_emphasis": true,
+    "include_spiritual": true,
+    "family_support_text": "Have you been able to talk to family members or close friends about how you're feeling?",
+    "spiritual_suggestions": [
+      "Some find comfort in meditation or prayer during difficult times.",
+      "Mindfulness practices rooted in our traditions can sometimes help.",
+      "Many in our community find strength in spiritual practices."
+    ],
+    "resources": {
+      "community_centers": [
+        "Local temple or religious center",
+        "Community elder groups",
+        "Cultural associations"
+      ],
+      "helplines": {
+        "sri_lanka": "1333",
+        "mental_health": "1926"
+      }
+    },
+    "avoid_topics": ["direct confrontation", "individual focus only"],
+    "emphasize": [
+      "community support",
+      "family involvement",
+      "holistic wellness"
+    ]
+  },
+  "western": {
+    "greeting": "Hello!",
+    "use_formal_greeting": false,
+    "family_emphasis": false,
+    "include_spiritual": false,
+    "resources": {
+      "helplines": {
+        "crisis": "988",
+        "mental_health": "1-800-273-8255"
+      }
+    }
+  }
+}

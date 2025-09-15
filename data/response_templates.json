@@ -1,0 +1,42 @@
+{
+  "anxiety": [
+    "I can hear that you're feeling anxious. Anxiety can be overwhelming, but you're not alone in this.",
+    "It sounds like anxiety is really affecting you right now. Let's work through this together.",
+    "Anxiety can make everything feel urgent and scary. Take a deep breath with me."
+  ],
+  "depression": [
+    "I hear the heaviness in what you're sharing. Depression can make everything feel so difficult.",
+    "You're dealing with some really tough feelings. Thank you for trusting me with this.",
+    "Depression can be isolating, but please know you don't have to face this alone."
+  ],
+  "anger": [
+    "I can sense you're feeling frustrated. It's okay to feel angry - these emotions are valid.",
+    "That sounds really frustrating. Anger often signals that something important to us is being threatened.",
+    "Your feelings of anger are completely understandable given what you're going through."
+  ],
+  "loneliness": [
+    "Feeling lonely can be so painful. Human connection is a fundamental need.",
+    "Loneliness can feel overwhelming. You've taken a brave step by reaching out here.",
+    "I hear that you're feeling isolated. That's a really difficult emotion to carry."
+  ],
+  "stress": [
+    "It sounds like you're under a lot of pressure right now. Stress can be exhausting.",
+    "You're dealing with a lot. It's understandable that you're feeling overwhelmed.",
+    "Stress can affect every part of our lives. Let's see if we can break this down together."
+  ],
+  "positive": [
+    "I'm glad to hear you're feeling more positive. What's contributing to this improvement?",
+    "That's wonderful to hear! Celebrating these moments is important.",
+    "It sounds like things are looking up. What's been helping you feel this way?"
+  ],
+  "general": [
+    "Thank you for sharing that with me. I'm here to listen and support you.",
+    "I appreciate you opening up. Tell me more about what's on your mind.",
+    "You're not alone in this. I'm here to help however I can."
+  ],
+  "crisis": [
+    "I'm very concerned about what you're sharing. Your safety is the most important thing right now.",
+    "These feelings you're describing are serious, and I want to make sure you get the right support.",
+    "What you're going through sounds incredibly painful. Please know that help is available."
+  ]
+}

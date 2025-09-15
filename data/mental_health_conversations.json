@@ -1,0 +1,59 @@
+{
+  "conversations": [
+    {
+      "id": 1,
+      "user_message": "I've been feeling really anxious lately about everything",
+      "expected_response": "anxiety",
+      "risk_level": "low",
+      "emotion": "anxious"
+    },
+    {
+      "id": 2,
+      "user_message": "I don't see the point in anything anymore",
+      "expected_response": "crisis",
+      "risk_level": "high",
+      "emotion": "hopeless"
+    },
+    {
+      "id": 3,
+      "user_message": "My family doesn't understand what I'm going through",
+      "expected_response": "loneliness",
+      "risk_level": "medium",
+      "emotion": "isolated"
+    },
+    {
+      "id": 4,
+      "user_message": "I've been having trouble sleeping because of stress",
+      "expected_response": "stress",
+      "risk_level": "low",
+      "emotion": "stressed"
+    },
+    {
+      "id": 5,
+      "user_message": "Sometimes I feel like everyone would be better off without me",
+      "expected_response": "crisis",
+      "risk_level": "high",
+      "emotion": "despair"
+    }
+  ],
+  "metadata": {
+    "total_conversations": 50,
+    "risk_distribution": {
+      "none": 10,
+      "low": 20,
+      "medium": 10,
+      "high": 8,
+      "immediate": 2
+    },
+    "emotion_categories": [
+      "anxious",
+      "depressed",
+      "angry",
+      "lonely",
+      "stressed",
+      "hopeless",
+      "neutral",
+      "positive"
+    ]
+  }
+}
