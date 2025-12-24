@@ -1,0 +1,108 @@
+{
+  "keywords": {
+    "immediate": [
+      "suicide",
+      "kill myself",
+      "end my life",
+      "want to die",
+      "better off dead",
+      "no reason to live",
+      "goodbye forever",
+      "final goodbye",
+      "can't go on",
+      "ending it all"
+    ],
+    "high": [
+      "self-harm",
+      "hurt myself",
+      "cutting",
+      "overdose",
+      "hopeless",
+      "worthless",
+      "no point",
+      "give up",
+      "can't take it anymore",
+      "disappear",
+      "harm myself"
+    ],
+    "medium": [
+      "depressed",
+      "anxious all the time",
+      "panic attacks",
+      "can't sleep",
+      "can't eat",
+      "overwhelming",
+      "breaking down",
+      "falling apart",
+      "losing control",
+      "can't function"
+    ],
+    "low": [
+      "stressed",
+      "worried",
+      "nervous",
+      "uneasy",
+      "concerned",
+      "troubled",
+      "bothered",
+      "unsettled"
+    ]
+  },
+  "phrases": [
+    "I don't want to be here anymore",
+    "everyone would be better off without me",
+    "I can't do this any longer",
+    "there's no way out",
+    "I'm a burden to everyone",
+    "nobody cares if I live or die",
+    "I've been planning",
+    "I have a method",
+    "I don't see a future",
+    "nothing matters anymore"
+  ],
+  "patterns": [
+    "I.*want.*to.*die",
+    "thinking.*about.*suicide",
+    "plan.*to.*end",
+    "hurt.*myself",
+    "cut.*myself",
+    "kill.*myself",
+    "better.*off.*dead",
+    "no.*reason.*to.*live",
+    "ending.*it.*all",
+    "can't.*go.*on.*anymore"
+  ],
+  "contextual_indicators": {
+    "isolation": ["alone", "no one", "nobody", "isolated", "abandoned"],
+    "hopelessness": ["hopeless", "pointless", "meaningless", "no hope", "no future"],
+    "burden": ["burden", "drag others down", "everyone hates me", "worthless"],
+    "pain": ["unbearable", "too much pain", "can't stand it", "suffering"],
+    "finality": ["goodbye", "last time", "final", "never again", "end"]
+  },
+  "protective_factors": {
+    "help_seeking": ["want help", "need support", "talk to someone", "get better"],
+    "connection": ["family", "friends", "people who care", "loved ones"],
+    "hope": ["maybe", "possibly", "trying", "working on it", "getting help"],
+    "coping": ["breathing", "exercise", "therapy", "counseling", "meditation"]
+  },
+  "cultural_considerations": {
+    "south_asian": {
+      "stigma_phrases": ["shame to family", "dishonor", "what will people say", "society"],
+      "family_pressure": ["parents expect", "family duty", "arranged marriage", "career pressure"],
+      "isolation_markers": ["can't tell anyone", "secret", "hiding", "pretending"]
+    }
+  },
+  "risk_escalation_markers": {
+    "temporal": ["tonight", "today", "soon", "now", "right now"],
+    "planning": ["plan", "method", "prepared", "ready", "decided"],
+    "means": ["pills", "rope", "knife", "gun", "bridge", "building"],
+    "past_attempts": ["tried before", "last time", "attempted", "failed before"]
+  },
+  "safety_assessment_questions": [
+    "Are you thinking about harming yourself right now?",
+    "Do you have a plan?",
+    "Do you have access to means?",
+    "Is there anyone you can talk to?",
+    "Are you in a safe place?"
+  ]
+}
