@@ -1,0 +1,33 @@
+# Core Backend Dependencies
+Flask==2.3.2
+Flask-CORS==4.0.0
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
+nltk==3.8.1
+textblob==0.17.1
+python-dotenv==1.0.0
+
+# FREE AI Model Options (choose one or more):
+
+# Option 1: Hugging Face Inference API (FREE tier - RECOMMENDED)
+# Just needs API requests, no heavy dependencies
+requests==2.31.0
+
+# Option 2: Local Hugging Face Models (completely FREE, runs offline)
+# Uncomment if you want to run models locally:
+# transformers==4.35.0
+# torch==2.1.0
+# accelerate==0.24.1
+
+# Option 3: Google Gemini API (FREE tier)
+# Uncomment if you want to use Gemini:
+# google-generativeai==0.3.1
+
+# Model Training Dependencies (for fine-tuning your own model)
+# transformers==4.35.0
+# torch==2.1.0
+# datasets==2.14.0
+# accelerate==0.24.1
+# peft==0.6.0  # For efficient fine-tuning
+# trl==0.7.4  # For training conversational models
