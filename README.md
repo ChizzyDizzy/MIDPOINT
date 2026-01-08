@@ -21,9 +21,20 @@ SafeMind AI is an **AI-powered mental health assistant** specifically designed f
 
 ## 📖 **START HERE: Complete Setup Guide**
 
-### 🎓 **[FINAL_GUIDE.md](FINAL_GUIDE.md)** ← **FOLLOW THIS!**
+### Choose Your Operating System:
 
-**This is your ONE guide for everything from A to Z:**
+#### 🍎 **macOS Users** → **[FINAL_GUIDE_MAC.md](FINAL_GUIDE_MAC.md)**
+**Optimized for Mac (Intel & Apple Silicon M1/M2/M3)**
+- ✅ Uses `python3` and `pip3` commands
+- ✅ macOS-compatible dependencies
+- ✅ Homebrew installation instructions
+- ✅ Apple Silicon (MPS) support
+- ✅ Google Colab training guide (required for Mac)
+
+#### 🐧 **Linux/Windows Users** → **[FINAL_GUIDE.md](FINAL_GUIDE.md)**
+**For Linux and Windows systems**
+
+**Both guides cover everything from A to Z:**
 - ✅ Installation (Backend + Frontend)
 - ✅ Configuration (API keys, environment)
 - ✅ Running the system
@@ -45,7 +56,27 @@ SafeMind AI is an **AI-powered mental health assistant** specifically designed f
 
 ## 🚀 Quick Start (If You Just Want to Run It)
 
-### System 1: Current (Flask + React) - Fully Working
+### macOS Quick Start
+
+```bash
+# Backend
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements_mac.txt  # Use Mac-specific requirements
+cp .env.example .env  # Add your API key
+python3 app_improved.py
+
+# Frontend (new terminal)
+cd frontend
+npm install
+npm start
+```
+
+**⚠️ macOS Users:** Use `python3` and `pip3` (not `python` or `pip`)
+**📖 See [FINAL_GUIDE_MAC.md](FINAL_GUIDE_MAC.md) for complete Mac setup**
+
+### Linux/Windows Quick Start
 
 ```bash
 # Backend
@@ -62,24 +93,7 @@ npm install
 npm start
 ```
 
-### System 2: New (FastAPI + Vue.js) - As Per Requirements
-
-```bash
-# Backend
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements_fastapi.txt
-cp .env.example .env  # Add your API key
-python app_fastapi.py
-
-# Frontend (new terminal)
-cd frontend-vue
-npm install
-npm run dev
-```
-
-**For detailed instructions, see [FINAL_GUIDE.md](FINAL_GUIDE.md)**
+**📖 See [FINAL_GUIDE.md](FINAL_GUIDE.md) for complete setup**
 
 ---
 
