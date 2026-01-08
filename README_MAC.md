@@ -181,35 +181,67 @@ HUGGINGFACE_MODEL=distilgpt2
 
 ### Why Synthetic Data?
 
-No existing Sri Lankan mental health conversation dataset exists. We'll create one using **Hugging Face Inference API** (free).
+No existing Sri Lankan mental health conversation dataset exists. We'll create one using **Google Gemini API** (FREE - no credit card required!).
 
-### Step 1: Install Dataset Generator
+### Step 1: Get Gemini API Key (FREE)
+
+**Get your FREE Gemini API key:**
+
+1. Go to https://makersuite.google.com/app/apikey
+2. Sign in with Google account
+3. Click "Create API Key"
+4. Copy the key (starts with `AI...`)
+
+**✅ No credit card required! Completely FREE!**
+
+### Step 2: Install Gemini Package
+
+```bash
+cd ~/Documents/MIDPOINT/backend
+
+# Activate your virtual environment if not already active
+source venv/bin/activate
+
+# Install Google Gemini API
+pip3 install google-generativeai
+```
+
+### Step 3: Generate Dataset
 
 ```bash
 cd ../scripts
 
-# Already have it! Check:
-ls generate_dataset.py
-```
+# Set your Gemini API key
+export GEMINI_API_KEY=your_gemini_key_here
 
-### Step 2: Generate Dataset
-
-**Using Hugging Face (Free):**
-
-```bash
-# Set your HF token
-export HUGGINGFACE_API_TOKEN=hf_your_token_here
-
-# Generate 500 samples (good starting point)
-python3 generate_dataset_hf.py \
+# Generate 500 samples (takes ~45 minutes)
+python3 generate_dataset.py \
+  --provider gemini \
   --num-samples 500 \
   --output ../data/mental_health_dataset.json
+
+# For more samples (1000 takes ~90 minutes):
+# python3 generate_dataset.py --provider gemini --num-samples 1000 --output ../data/mental_health_dataset.json
 ```
 
-**What this creates:**
+**⏱️ Progress:**
+- Generates 1 sample per 5 seconds (API rate limiting)
+- Shows progress: `[1/500] Generating anxiety sample...`
+- Saves checkpoints every 100 samples (recovery if interrupted)
+- If interrupted, resume from checkpoint!
+
+### Step 4: What Gets Created
+
+**Dataset Structure:**
 
 ```json
 {
+  "metadata": {
+    "total_samples": 500,
+    "generated_at": "2024-01-08 10:30:00",
+    "provider": "gemini",
+    "model": "gemini-pro"
+  },
   "samples": [
     {
       "instruction": "You are a mental health chatbot for Sri Lankan users...",
@@ -224,14 +256,14 @@ python3 generate_dataset_hf.py \
 ```
 
 **Categories generated:**
-- Academic stress (A/L exams, university)
-- Family pressure (doctor/engineer expectations)
-- Depression symptoms
-- Anxiety
-- Crisis (hopelessness, suicidal ideation)
-- Relationship issues
-- Financial stress
-- Positive progress
+- 🎓 **Academic stress** (A/L exams, university pressure)
+- 👨‍👩‍👧 **Family pressure** (doctor/engineer expectations, marriage)
+- 😔 **Depression** symptoms
+- 😰 **Anxiety** (panic, worry, nervousness)
+- 🚨 **Crisis** (hopelessness, suicidal ideation) - includes 1333 hotline
+- ❤️ **Relationship** issues
+- 💰 **Financial stress**
+- ✅ **Positive progress** (improvement, hope)
 
 ---
 
