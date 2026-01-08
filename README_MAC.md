@@ -194,28 +194,23 @@ No existing Sri Lankan mental health conversation dataset exists. We'll create o
 
 **✅ No credit card required! Completely FREE!**
 
-### Step 2: Install Gemini Package (NEW VERSION)
+### Step 2: No Extra Packages Needed!
 
+**Good news:** The script now uses Gemini's REST API directly through the `requests` library, which you already have installed!
+
+**No need to install:**
+- ~~google-generativeai~~ (deprecated)
+- ~~google-genai~~ (not needed anymore!)
+
+**If you previously installed these, you can uninstall:**
 ```bash
-cd ~/Documents/MIDPOINT/backend
-
-# Activate your virtual environment if not already active
-source venv/bin/activate
-
-# Uninstall old package if you installed it before
-pip3 uninstall google-generativeai -y
-
-# Install NEW Google Gemini API package
-pip3 install google-genai
-
-# IMPORTANT: Use google-genai (not google-generativeai)
-# The old package is deprecated!
+pip3 uninstall google-generativeai google-genai -y
 ```
 
 **Python Version Note:**
-- Python 3.10+ recommended (fewer warnings)
-- Python 3.9 works but shows deprecation warnings (IGNORE THEM!)
-- To upgrade Python: `brew install python@3.11` (optional)
+- Python 3.9+ works perfectly
+- Python 3.10+ recommended for fewer warnings
+- The warnings you see don't affect functionality - IGNORE THEM!
 
 ### Step 3: Generate Dataset
 
