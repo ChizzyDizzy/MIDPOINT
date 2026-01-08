@@ -9,9 +9,7 @@ QUICK START WITH GEMINI (FREE):
 1. Get FREE API key: https://aistudio.google.com/app/apikey
 2. Set environment variable:
    export GEMINI_API_KEY=your-key-here
-3. Install package:
-   pip3 install google-genai
-4. Run script:
+3. Run script (no extra packages needed!):
    python3 generate_dataset.py --provider gemini --num-samples 500 --output ../data/mental_health_dataset.json
 
 USAGE:
@@ -43,13 +41,9 @@ except ImportError:
     OPENAI_AVAILABLE = False
     print("Warning: openai not installed. Install with: pip install openai")
 
-try:
-    from google import genai
-    from google.genai import types
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
-    print("Warning: google-genai not installed. Install with: pip install google-genai")
+# Gemini uses REST API directly - no special package needed
+# Just need requests which is already a dependency
+GEMINI_AVAILABLE = True  # Always available since we use REST API
 
 
 class DatasetGenerator:
@@ -80,13 +74,11 @@ class DatasetGenerator:
             self.model = "gpt-4"
 
         elif self.provider == "gemini":
-            if not GEMINI_AVAILABLE:
-                raise ImportError("google-genai library not installed")
+            # Store API key for REST API calls
             self.api_key = api_key
             # Use gemini-1.5-flash-latest (FREE tier model)
-            # We'll use REST API directly to avoid SDK issues
+            # We use REST API directly - more reliable than SDK
             self.model = "gemini-1.5-flash-latest"
-            self.use_rest_api = True
 
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -477,7 +469,6 @@ def main():
             print(f"  1. Go to https://aistudio.google.com/app/apikey")
             print(f"  2. Click 'Get API Key' or 'Create API Key'")
             print(f"  3. Copy the key and set it as environment variable")
-            print(f"\nInstall package: pip3 install google-genai")
             return
 
     # Initialize generator
