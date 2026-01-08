@@ -82,9 +82,11 @@ class DatasetGenerator:
         elif self.provider == "gemini":
             if not GEMINI_AVAILABLE:
                 raise ImportError("google-genai library not installed")
-            self.client = genai.Client(api_key=api_key)
-            # Use gemini-1.5-flash-latest (FREE tier model - corrected name)
+            self.api_key = api_key
+            # Use gemini-1.5-flash-latest (FREE tier model)
+            # We'll use REST API directly to avoid SDK issues
             self.model = "gemini-1.5-flash-latest"
+            self.use_rest_api = True
 
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -158,11 +160,29 @@ OUTPUT FORMAT (JSON only, no markdown):
                 content = response.choices[0].message.content
 
             elif self.provider == "gemini":
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=prompt
-                )
-                content = response.text
+                # Use REST API directly for reliability
+                import requests
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+
+                payload = {
+                    "contents": [{
+                        "parts": [{
+                            "text": prompt
+                        }]
+                    }],
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 1024,
+                    }
+                }
+
+                response = requests.post(url, json=payload, timeout=30)
+
+                if response.status_code == 200:
+                    result = response.json()
+                    content = result['candidates'][0]['content']['parts'][0]['text']
+                else:
+                    raise Exception(f"Gemini API error: {response.status_code} - {response.text}")
 
             # Parse JSON from response
             # Remove markdown code blocks if present
