@@ -2,8 +2,19 @@
 SafeMind AI - Synthetic Dataset Generator
 Generates culturally-aware mental health training conversations
 
-This script uses an external LLM API (Claude, GPT, or Gemini) to generate
-high-quality synthetic training data for the Sri Lankan mental health context.
+This script uses Gemini (FREE) to generate high-quality synthetic training
+data for the Sri Lankan mental health context.
+
+QUICK START WITH GEMINI (FREE):
+1. Get FREE API key: https://makersuite.google.com/app/apikey
+2. Set environment variable:
+   export GEMINI_API_KEY=your-key-here
+3. Run script:
+   python3 generate_dataset.py --provider gemini --num-samples 500 --output ../data/mental_health_dataset.json
+
+USAGE:
+  python3 generate_dataset.py --provider gemini --num-samples 500
+  python3 generate_dataset.py --provider gemini --api-key YOUR_KEY --num-samples 1000
 """
 
 import json
@@ -408,15 +419,35 @@ def main():
         env_vars = {
             "claude": "ANTHROPIC_API_KEY",
             "openai": "OPENAI_API_KEY",
-            "gemini": "GOOGLE_API_KEY"
+            "gemini": ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY"]  # Try multiple names
         }
-        env_var = env_vars.get(args.provider)
-        api_key = os.getenv(env_var)
+
+        env_var_options = env_vars.get(args.provider)
+
+        # For gemini, try multiple environment variable names
+        if args.provider == "gemini":
+            for var_name in env_var_options:
+                api_key = os.getenv(var_name)
+                if api_key:
+                    print(f"✓ Found API key in {var_name}")
+                    break
+        else:
+            env_var = env_var_options
+            api_key = os.getenv(env_var)
 
         if not api_key:
             print(f"Error: API key not found!")
-            print(f"Set environment variable: export {env_var}=your-key")
+            if args.provider == "gemini":
+                print(f"Set one of these environment variables:")
+                print(f"  export GEMINI_API_KEY=your-key")
+                print(f"  export GOOGLE_API_KEY=your-key")
+            else:
+                print(f"Set environment variable: export {env_var_options}=your-key")
             print(f"Or use: --api-key your-key")
+            print(f"\nTo get a FREE Gemini API key:")
+            print(f"  1. Go to https://makersuite.google.com/app/apikey")
+            print(f"  2. Click 'Create API Key'")
+            print(f"  3. Copy the key and set it as environment variable")
             return
 
     # Initialize generator
