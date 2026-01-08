@@ -83,8 +83,8 @@ class DatasetGenerator:
             if not GEMINI_AVAILABLE:
                 raise ImportError("google-genai library not installed")
             self.client = genai.Client(api_key=api_key)
-            # Use gemini-1.5-flash (FREE tier model)
-            self.model = "gemini-1.5-flash"
+            # Use gemini-1.5-flash-latest (FREE tier model - corrected name)
+            self.model = "gemini-1.5-flash-latest"
 
         else:
             raise ValueError(f"Unknown provider: {provider}")

@@ -246,7 +246,7 @@ python3 generate_dataset.py \
 ✓ Found API key in GEMINI_API_KEY
 ============================================================
 Generating 500 synthetic training samples...
-Provider: gemini | Model: gemini-1.5-flash
+Provider: gemini | Model: gemini-1.5-flash-latest
 ============================================================
 
 [1/500] Generating anxiety sample...
@@ -262,7 +262,7 @@ Provider: gemini | Model: gemini-1.5-flash
 - Saves checkpoints every 100 samples (recovery if interrupted)
 - If interrupted, checkpoint file: `../data/mental_health_dataset_checkpoint.json`
 - **Ignore Python 3.9 warnings** - they don't affect functionality!
-- Uses **gemini-1.5-flash** model (FREE tier, fast, high quality)
+- Uses **gemini-1.5-flash-latest** model (FREE tier, stable, high quality)
 
 ### Step 4: What Gets Created
 
@@ -274,7 +274,7 @@ Provider: gemini | Model: gemini-1.5-flash
     "total_samples": 500,
     "generated_at": "2024-01-08 10:30:00",
     "provider": "gemini",
-    "model": "gemini-1.5-flash"
+    "model": "gemini-1.5-flash-latest"
   },
   "samples": [
     {
