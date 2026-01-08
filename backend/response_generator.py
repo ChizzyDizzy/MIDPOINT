@@ -7,9 +7,9 @@ class ResponseGenerator:
     def __init__(self):
         with open('../data/response_templates.json', 'r') as f:
             self.templates = json.load(f)
-        
-        # For future: This is where ChatGPT API would be integrated
-        self.use_ai = False  # Set to True when API is available
+
+        # Using template-based responses (for simple fallback scenarios)
+        self.use_ai = False
     
     def generate_response(self, message: str, context: Dict, emotion: str = 'neutral') -> str:
         """Generate appropriate response based on message and context"""
@@ -88,18 +88,15 @@ class ResponseGenerator:
         return questions.get(category, "Tell me more about what's on your mind.")
     
     def generate_ai_response(self, message: str, context: str) -> str:
-        """Future: Integration with ChatGPT API"""
-        # This is where you'll add ChatGPT integration
+        """Template-based response generation (fallback mode)"""
+        # For AI responses, use ai_model_free.py instead
         prompt = f"""You are SafeMind, a compassionate mental health support assistant.
-        
+
         Context: {context}
         User message: {message}
-        
+
         Provide empathetic, supportive response. Focus on active listening.
         Do not provide medical advice. Encourage professional help when appropriate.
         """
-        
-        # Placeholder for API call
-        # response = openai.ChatCompletion.create(...)
-        
-        return "AI response would go here"
+
+        return "Use ai_model_free.py for AI-generated responses"

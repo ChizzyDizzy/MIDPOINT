@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 # Import components
 from safety_detector import SafetyDetector
 from context_manager import ContextManager
-from ai_model import SafeMindAI
+from ai_model_free import SafeMindAI
 from cultural_adapter import CulturalAdapter
 from config import Config
 

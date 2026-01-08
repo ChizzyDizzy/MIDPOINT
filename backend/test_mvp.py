@@ -6,7 +6,7 @@ Demonstrates Input → Process → Output functionality
 import sys
 import json
 from datetime import datetime
-from ai_model import SafeMindAI
+from ai_model_free import SafeMindAI
 from enhanced_safety_detector import EnhancedSafetyDetector
 from cultural_adapter import CulturalAdapter
 

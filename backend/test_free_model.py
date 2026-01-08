@@ -43,13 +43,6 @@ elif ai_backend == 'local':
     print(f"✓ Local Model: {model}")
     print("  (First run will download ~500MB)")
 
-elif ai_backend == 'gemini':
-    api_key = os.getenv('GEMINI_API_KEY', '')
-    if not api_key:
-        print("❌ ERROR: No Gemini API key found!")
-        sys.exit(1)
-    print(f"✓ Gemini API Key: {api_key[:10]}...")
-
 else:
     print("⚠️  Fallback mode (template responses, no AI)")
 
