@@ -6,15 +6,19 @@ This script uses Gemini (FREE) to generate high-quality synthetic training
 data for the Sri Lankan mental health context.
 
 QUICK START WITH GEMINI (FREE):
-1. Get FREE API key: https://makersuite.google.com/app/apikey
+1. Get FREE API key: https://aistudio.google.com/app/apikey
 2. Set environment variable:
    export GEMINI_API_KEY=your-key-here
-3. Run script:
+3. Install package:
+   pip3 install google-genai
+4. Run script:
    python3 generate_dataset.py --provider gemini --num-samples 500 --output ../data/mental_health_dataset.json
 
 USAGE:
   python3 generate_dataset.py --provider gemini --num-samples 500
   python3 generate_dataset.py --provider gemini --api-key YOUR_KEY --num-samples 1000
+
+NOTE: Python 3.10+ recommended (you have 3.9, which works but shows warnings)
 """
 
 import json
@@ -40,11 +44,12 @@ except ImportError:
     print("Warning: openai not installed. Install with: pip install openai")
 
 try:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai import types
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
+    print("Warning: google-genai not installed. Install with: pip install google-genai")
 
 
 class DatasetGenerator:
@@ -76,9 +81,10 @@ class DatasetGenerator:
 
         elif self.provider == "gemini":
             if not GEMINI_AVAILABLE:
-                raise ImportError("google-generativeai library not installed")
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+                raise ImportError("google-genai library not installed")
+            self.client = genai.Client(api_key=api_key)
+            # Use gemini-1.5-flash (FREE tier model)
+            self.model = "gemini-1.5-flash"
 
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -152,7 +158,10 @@ OUTPUT FORMAT (JSON only, no markdown):
                 content = response.choices[0].message.content
 
             elif self.provider == "gemini":
-                response = self.model.generate_content(prompt)
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt
+                )
                 content = response.text
 
             # Parse JSON from response
@@ -445,9 +454,10 @@ def main():
                 print(f"Set environment variable: export {env_var_options}=your-key")
             print(f"Or use: --api-key your-key")
             print(f"\nTo get a FREE Gemini API key:")
-            print(f"  1. Go to https://makersuite.google.com/app/apikey")
-            print(f"  2. Click 'Create API Key'")
+            print(f"  1. Go to https://aistudio.google.com/app/apikey")
+            print(f"  2. Click 'Get API Key' or 'Create API Key'")
             print(f"  3. Copy the key and set it as environment variable")
+            print(f"\nInstall package: pip3 install google-genai")
             return
 
     # Initialize generator

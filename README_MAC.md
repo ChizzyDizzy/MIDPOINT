@@ -187,14 +187,14 @@ No existing Sri Lankan mental health conversation dataset exists. We'll create o
 
 **Get your FREE Gemini API key:**
 
-1. Go to https://makersuite.google.com/app/apikey
-2. Sign in with Google account
-3. Click "Create API Key"
-4. Copy the key (starts with `AI...`)
+1. Go to **https://aistudio.google.com/app/apikey** (NEW URL!)
+2. Sign in with your Google account
+3. Click **"Get API key"** or **"Create API Key"**
+4. Copy the key (starts with `AIza...`)
 
 **✅ No credit card required! Completely FREE!**
 
-### Step 2: Install Gemini Package
+### Step 2: Install Gemini Package (NEW VERSION)
 
 ```bash
 cd ~/Documents/MIDPOINT/backend
@@ -202,17 +202,31 @@ cd ~/Documents/MIDPOINT/backend
 # Activate your virtual environment if not already active
 source venv/bin/activate
 
-# Install Google Gemini API
-pip3 install google-generativeai
+# Uninstall old package if you installed it before
+pip3 uninstall google-generativeai -y
+
+# Install NEW Google Gemini API package
+pip3 install google-genai
+
+# IMPORTANT: Use google-genai (not google-generativeai)
+# The old package is deprecated!
 ```
+
+**Python Version Note:**
+- Python 3.10+ recommended (fewer warnings)
+- Python 3.9 works but shows deprecation warnings (IGNORE THEM!)
+- To upgrade Python: `brew install python@3.11` (optional)
 
 ### Step 3: Generate Dataset
 
 ```bash
 cd ../scripts
 
-# Set your Gemini API key
-export GEMINI_API_KEY=your_gemini_key_here
+# Set your Gemini API key (replace with YOUR actual key)
+export GEMINI_API_KEY=AIza...your_actual_key_here
+
+# Verify it's set
+echo $GEMINI_API_KEY
 
 # Generate 500 samples (takes ~45 minutes)
 python3 generate_dataset.py \
@@ -220,15 +234,35 @@ python3 generate_dataset.py \
   --num-samples 500 \
   --output ../data/mental_health_dataset.json
 
+# For testing first (10 samples, ~1 minute):
+# python3 generate_dataset.py --provider gemini --num-samples 10 --output ../data/test_dataset.json
+
 # For more samples (1000 takes ~90 minutes):
 # python3 generate_dataset.py --provider gemini --num-samples 1000 --output ../data/mental_health_dataset.json
 ```
 
-**⏱️ Progress:**
+**Expected Output:**
+```
+✓ Found API key in GEMINI_API_KEY
+============================================================
+Generating 500 synthetic training samples...
+Provider: gemini | Model: gemini-1.5-flash
+============================================================
+
+[1/500] Generating anxiety sample...
+✓ Generated: I'm really nervous about my A/L results coming out...
+
+[2/500] Generating depression sample...
+✓ Generated: I feel like nothing brings me joy anymore...
+```
+
+**⏱️ Progress & Tips:**
 - Generates 1 sample per 5 seconds (API rate limiting)
 - Shows progress: `[1/500] Generating anxiety sample...`
 - Saves checkpoints every 100 samples (recovery if interrupted)
-- If interrupted, resume from checkpoint!
+- If interrupted, checkpoint file: `../data/mental_health_dataset_checkpoint.json`
+- **Ignore Python 3.9 warnings** - they don't affect functionality!
+- Uses **gemini-1.5-flash** model (FREE tier, fast, high quality)
 
 ### Step 4: What Gets Created
 
@@ -240,7 +274,7 @@ python3 generate_dataset.py \
     "total_samples": 500,
     "generated_at": "2024-01-08 10:30:00",
     "provider": "gemini",
-    "model": "gemini-pro"
+    "model": "gemini-1.5-flash"
   },
   "samples": [
     {
