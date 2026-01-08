@@ -9,9 +9,7 @@ QUICK START WITH GEMINI (FREE):
 1. Get FREE API key: https://aistudio.google.com/app/apikey
 2. Set environment variable:
    export GEMINI_API_KEY=your-key-here
-3. Install package:
-   pip3 install google-genai
-4. Run script:
+3. Run script (no extra packages needed!):
    python3 generate_dataset.py --provider gemini --num-samples 500 --output ../data/mental_health_dataset.json
 
 USAGE:
@@ -43,13 +41,9 @@ except ImportError:
     OPENAI_AVAILABLE = False
     print("Warning: openai not installed. Install with: pip install openai")
 
-try:
-    from google import genai
-    from google.genai import types
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
-    print("Warning: google-genai not installed. Install with: pip install google-genai")
+# Gemini uses REST API directly - no special package needed
+# Just need requests which is already a dependency
+GEMINI_AVAILABLE = True  # Always available since we use REST API
 
 
 class DatasetGenerator:
@@ -80,10 +74,10 @@ class DatasetGenerator:
             self.model = "gpt-4"
 
         elif self.provider == "gemini":
-            if not GEMINI_AVAILABLE:
-                raise ImportError("google-genai library not installed")
-            self.client = genai.Client(api_key=api_key)
-            # Use gemini-1.5-flash-latest (FREE tier model - corrected name)
+            # Store API key for REST API calls
+            self.api_key = api_key
+            # Use gemini-1.5-flash-latest (FREE tier model)
+            # We use REST API directly - more reliable than SDK
             self.model = "gemini-1.5-flash-latest"
 
         else:
@@ -158,11 +152,29 @@ OUTPUT FORMAT (JSON only, no markdown):
                 content = response.choices[0].message.content
 
             elif self.provider == "gemini":
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=prompt
-                )
-                content = response.text
+                # Use REST API directly for reliability
+                import requests
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+
+                payload = {
+                    "contents": [{
+                        "parts": [{
+                            "text": prompt
+                        }]
+                    }],
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 1024,
+                    }
+                }
+
+                response = requests.post(url, json=payload, timeout=30)
+
+                if response.status_code == 200:
+                    result = response.json()
+                    content = result['candidates'][0]['content']['parts'][0]['text']
+                else:
+                    raise Exception(f"Gemini API error: {response.status_code} - {response.text}")
 
             # Parse JSON from response
             # Remove markdown code blocks if present
@@ -457,7 +469,6 @@ def main():
             print(f"  1. Go to https://aistudio.google.com/app/apikey")
             print(f"  2. Click 'Get API Key' or 'Create API Key'")
             print(f"  3. Copy the key and set it as environment variable")
-            print(f"\nInstall package: pip3 install google-genai")
             return
 
     # Initialize generator
