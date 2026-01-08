@@ -1,9 +1,8 @@
 """
-SafeMind AI - Free AI Model Integration
-Supports multiple FREE AI options:
+SafeMind AI - Hugging Face Model Integration
+Supports Hugging Face models only:
 1. Hugging Face Inference API (FREE tier - recommended)
 2. Local Hugging Face models (completely FREE, runs offline)
-3. Google Gemini API (FREE tier)
 """
 
 import os
@@ -16,16 +15,14 @@ load_dotenv()
 
 class SafeMindAI:
     def __init__(self):
-        """Initialize AI client with FREE options"""
+        """Initialize AI client with Hugging Face"""
 
         # Determine which AI backend to use
-        self.ai_backend = os.getenv('AI_BACKEND', 'huggingface')  # huggingface, gemini, local, or fallback
+        self.ai_backend = os.getenv('AI_BACKEND', 'huggingface')  # huggingface, local, or fallback
 
         # Initialize based on backend
         if self.ai_backend == 'huggingface':
             self._init_huggingface()
-        elif self.ai_backend == 'gemini':
-            self._init_gemini()
         elif self.ai_backend == 'local':
             self._init_local_model()
         else:
@@ -43,7 +40,7 @@ class SafeMindAI:
         """Initialize Hugging Face Inference API (FREE tier)"""
         api_key = os.getenv('HUGGINGFACE_API_KEY')
 
-        if not api_key or api_key == 'hf_demo_key_replace_with_actual':
+        if not api_key or api_key.startswith('hf_your'):
             print("WARNING: No Hugging Face API key found. Using fallback mode.")
             print("Get a FREE API key at: https://huggingface.co/settings/tokens")
             self.use_ai = False
@@ -55,31 +52,11 @@ class SafeMindAI:
         # - 'facebook/blenderbot-400M-distill' (conversational)
         # - 'microsoft/DialoGPT-medium' (dialogue)
         # - 'google/flan-t5-base' (instruction following)
+        # - 'distilgpt2' (lightweight and fast)
 
         self.hf_api_url = f"https://api-inference.huggingface.co/models/{self.hf_model}"
         self.use_ai = True
         print(f"✓ Hugging Face initialized with model: {self.hf_model}")
-
-    def _init_gemini(self):
-        """Initialize Google Gemini API (FREE tier)"""
-        try:
-            import google.generativeai as genai
-            api_key = os.getenv('GEMINI_API_KEY')
-
-            if not api_key:
-                print("WARNING: No Gemini API key found. Using fallback mode.")
-                print("Get a FREE API key at: https://makersuite.google.com/app/apikey")
-                self.use_ai = False
-                return
-
-            genai.configure(api_key=api_key)
-            self.gemini_model = genai.GenerativeModel('gemini-pro')
-            self.use_ai = True
-            print("✓ Google Gemini initialized (FREE tier)")
-
-        except ImportError:
-            print("WARNING: google-generativeai not installed. Run: pip install google-generativeai")
-            self.use_ai = False
 
     def _init_local_model(self):
         """Initialize local Hugging Face model (completely FREE, offline)"""
@@ -148,7 +125,7 @@ Remember: You are a supportive companion, not a replacement for professional men
         emotion: str = 'neutral'
     ) -> str:
         """
-        Generate AI response to user message using FREE AI models
+        Generate AI response to user message using Hugging Face models
 
         Args:
             user_message: The user's input message
@@ -166,10 +143,6 @@ Remember: You are a supportive companion, not a replacement for professional men
             # Route to appropriate backend
             if self.ai_backend == 'huggingface':
                 ai_response = self._generate_huggingface_response(
-                    user_message, context_summary, risk_level, emotion
-                )
-            elif self.ai_backend == 'gemini':
-                ai_response = self._generate_gemini_response(
                     user_message, context_summary, risk_level, emotion
                 )
             elif self.ai_backend == 'local':
@@ -233,21 +206,6 @@ Remember: You are a supportive companion, not a replacement for professional men
 
         # Fallback if API fails
         return self._generate_fallback_response(user_message, emotion)
-
-    def _generate_gemini_response(
-        self,
-        user_message: str,
-        context_summary: Dict,
-        risk_level: str,
-        emotion: str
-    ) -> str:
-        """Generate response using Google Gemini API (FREE)"""
-
-        # Construct prompt with context
-        full_prompt = f"{self.system_prompt}\n\nUser emotion: {emotion}\nRisk level: {risk_level}\n\nUser: {user_message}\n\nAssistant:"
-
-        response = self.gemini_model.generate_content(full_prompt)
-        return response.text.strip()
 
     def _generate_local_response(
         self,

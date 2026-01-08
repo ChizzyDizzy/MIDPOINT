@@ -6,10 +6,11 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     DEBUG = True
-    
-    # Future API configurations
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY') or 'placeholder-for-future'
-    
+
+    # Hugging Face configuration
+    HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY')
+    HUGGINGFACE_MODEL = os.environ.get('HUGGINGFACE_MODEL', 'microsoft/DialoGPT-medium')
+
     # Crisis hotlines for Sri Lanka
     EMERGENCY_RESOURCES = {
         'sri_lanka': {
@@ -18,7 +19,7 @@ class Config:
             'emergency': '119'
         }
     }
-    
+
     # Safety thresholds
     CRISIS_THRESHOLD = 0.7
     WARNING_THRESHOLD = 0.5

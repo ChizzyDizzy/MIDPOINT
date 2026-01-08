@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # Import improved components
 from safety_detector import SafetyDetector
 from context_manager import ContextManager
-from ai_model import SafeMindAI
+from ai_model_free import SafeMindAI
 from cultural_adapter import CulturalAdapter
 from config import Config
 
@@ -33,10 +33,11 @@ cultural_adapter = CulturalAdapter()
 # Track system status
 SYSTEM_STATUS = {
     'ai_enabled': ai_model.use_ai,
-    'model': os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo'),
+    'model': os.getenv('HUGGINGFACE_MODEL', 'microsoft/DialoGPT-medium'),
+    'ai_backend': os.getenv('AI_BACKEND', 'huggingface'),
     'safety_detection': 'active',
     'cultural_adaptation': 'active',
-    'version': '1.0.0-MVP'
+    'version': '1.0.0-HF'
 }
 
 @app.route('/api/chat', methods=['POST'])
