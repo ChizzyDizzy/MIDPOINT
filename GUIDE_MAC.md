@@ -8,13 +8,13 @@
 ## 🎯 What You'll Build
 
 A complete mental health chatbot powered by:
-- **Groq API** (FREE, fast) for dataset generation
+- **Template expansion** (NO API needed!) for dataset generation
 - **Hugging Face models** (DialoGPT/GPT-2) for the chatbot
 - **LoRA fine-tuning** for Sri Lankan context
 - **React frontend** for the user interface
 - **9-layer crisis detection** system
 
-**NO Gemini. NO Claude. NO OpenAI. Pure Hugging Face!**
+**NO Gemini. NO Claude. NO OpenAI. NO API keys. Pure Hugging Face!**
 
 ---
 
@@ -45,13 +45,6 @@ brew install git
 ```
 
 ### Required Accounts
-
-**Groq Account (FREE - for dataset generation)**
-1. Go to https://console.groq.com/
-2. Sign up (FREE, no credit card!)
-3. Go to https://console.groq.com/keys
-4. Click "Create API Key"
-5. Copy key (starts with `gsk_...`)
 
 **Hugging Face Account (FREE - for models)**
 1. Go to https://huggingface.co/join
@@ -143,52 +136,59 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 
 ---
 
-## 📊 PART 2: Generate Synthetic Dataset (15 minutes for 500 samples)
+## 📊 PART 2: Generate Synthetic Dataset (1 minute - NO API needed!)
 
-### Step 1: Get Groq API Key
+### Generate 1500 Training Samples
 
-1. Go to https://console.groq.com/keys
-2. Click "Create API Key"
-3. Copy the key
-
-### Step 2: Generate Dataset
+**NO API keys needed!** Uses existing template files in `data/` directory.
 
 ```bash
 cd ../scripts
 
-# Set your Groq API key
-export GROQ_API_KEY=gsk_your_key_here
-
-# Generate 500 samples (~8-10 minutes with Groq!)
-python3 generate_dataset.py \
-  --num-samples 500 \
+# Generate 1500 samples from templates (< 1 minute!)
+python3 expand_dataset.py \
+  --num-samples 1500 \
   --output ../data/mental_health_dataset.json
-
-# For testing (10 samples, ~30 seconds):
-# python3 generate_dataset.py --num-samples 10 --output ../data/test_dataset.json
 ```
 
 **Expected Output:**
 ```
 ======================================================================
-Generating 500 synthetic training samples...
-Using Groq API | Model: llama3-70b-8192
+Expanding templates into 1500 training samples...
 ======================================================================
 
-[1/500] Generating anxiety sample...
-✓ Generated: I'm really worried about my A/L exam results coming out...
-
-[2/500] Generating depression sample...
-✓ Generated: I feel like nothing makes me happy anymore...
-
-✓ Checkpoint: 100 samples saved
-
+[100/1500] Generated anxiety sample
+[200/1500] Generated anxiety sample
 ...
+[1500/1500] Generated positive sample
 
-✓ Dataset generation complete!
-✓ Total samples: 500
+✓ Generated 1500 training samples
+
+======================================================================
+✓ Dataset expansion complete!
+✓ Total samples: 1500
 ✓ Saved to: ../data/mental_health_dataset.json
+======================================================================
+
+📊 Dataset Statistics:
+
+Total Samples: 1500
+
+Categories:
+  anxiety               250 ( 16.7%)
+  academic_stress       200 ( 13.3%)
+  stress                200 ( 13.3%)
+  depression            200 ( 13.3%)
+  family_issues         150 ( 10.0%)
+  ...
 ```
+
+**What this does:**
+- Loads existing JSON templates (crisis patterns, cultural templates, etc.)
+- Generates culturally-aware Sri Lankan variations
+- Creates 1500 properly formatted training samples
+- Includes proper risk levels and crisis resources
+- NO external API calls needed!
 
 ### Step 3: Validate Dataset
 
