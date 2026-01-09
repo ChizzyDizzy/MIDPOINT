@@ -2,21 +2,23 @@
 SafeMind AI - Synthetic Dataset Generator
 Generates culturally-aware mental health training conversations
 
-This script uses Gemini (FREE) to generate high-quality synthetic training
-data for the Sri Lankan mental health context.
+Uses Groq API (FREE, FAST, NO CREDIT CARD REQUIRED!)
+- No traffic issues
+- Very fast generation (2-3x faster than competitors)
+- High quality outputs
+- Completely FREE
 
-QUICK START WITH GEMINI (FREE):
-1. Get FREE API key: https://aistudio.google.com/app/apikey
+QUICK START:
+1. Get FREE Groq API key: https://console.groq.com/keys
 2. Set environment variable:
-   export GEMINI_API_KEY=your-key-here
-3. Run script (no extra packages needed!):
-   python3 generate_dataset.py --provider gemini --num-samples 500 --output ../data/mental_health_dataset.json
+   export GROQ_API_KEY=your-key-here
+3. Run:
+   python3 generate_dataset.py --num-samples 500 --output ../data/mental_health_dataset.json
 
 USAGE:
-  python3 generate_dataset.py --provider gemini --num-samples 500
-  python3 generate_dataset.py --provider gemini --api-key YOUR_KEY --num-samples 1000
-
-NOTE: Python 3.10+ recommended (you have 3.9, which works but shows warnings)
+  python3 generate_dataset.py --num-samples 500
+  python3 generate_dataset.py --num-samples 1000
+  python3 generate_dataset.py --api-key YOUR_KEY --num-samples 500
 """
 
 import json
@@ -25,63 +27,22 @@ import time
 from typing import List, Dict, Optional
 import random
 import argparse
-
-# Import API clients (install: pip install anthropic openai google-generativeai)
-try:
-    from anthropic import Anthropic
-    ANTHROPIC_AVAILABLE = True
-except ImportError:
-    ANTHROPIC_AVAILABLE = False
-    print("Warning: anthropic not installed. Install with: pip install anthropic")
-
-try:
-    from openai import OpenAI
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-    print("Warning: openai not installed. Install with: pip install openai")
-
-# Gemini uses REST API directly - no special package needed
-# Just need requests which is already a dependency
-GEMINI_AVAILABLE = True  # Always available since we use REST API
-
+import requests
 
 class DatasetGenerator:
-    """Generate synthetic mental health conversation dataset"""
+    """Generate synthetic mental health conversation dataset using Groq"""
 
-    def __init__(self, api_key: str, provider: str = "claude"):
+    def __init__(self, api_key: str):
         """
-        Initialize dataset generator
+        Initialize dataset generator with Groq API
 
         Args:
-            api_key: API key for LLM provider
-            provider: "openai", "claude", or "gemini"
+            api_key: Groq API key (get free at https://console.groq.com/keys)
         """
-        self.provider = provider.lower()
         self.api_key = api_key
-
-        # Initialize API client
-        if self.provider == "claude":
-            if not ANTHROPIC_AVAILABLE:
-                raise ImportError("anthropic library not installed")
-            self.client = Anthropic(api_key=api_key)
-            self.model = "claude-3-5-sonnet-20241022"
-
-        elif self.provider == "openai":
-            if not OPENAI_AVAILABLE:
-                raise ImportError("openai library not installed")
-            self.client = OpenAI(api_key=api_key)
-            self.model = "gpt-4"
-
-        elif self.provider == "gemini":
-            # Store API key for REST API calls
-            self.api_key = api_key
-            # Use gemini-1.5-flash-latest (FREE tier model)
-            # We use REST API directly - more reliable than SDK
-            self.model = "gemini-1.5-flash-latest"
-
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
+        # Using Llama 3 70B - best quality free model
+        self.model = "llama3-70b-8192"
+        self.api_url = "https://api.groq.com/openai/v1/chat/completions"
 
     def generate_sample(self, user_input: str, category: str,
                        emotion: str, risk_level: str) -> Optional[Dict]:
@@ -123,7 +84,7 @@ REQUIREMENTS FOR RESPONSE:
 5. Encourage self-reflection
 6. Suggest professional help gently when appropriate
 7. Use Sri Lankan English (respectful, neutral)
-8. If high risk: Include crisis resources (1333 hotline)
+8. If high risk: Include crisis resources (1333 hotline, Sumithrayo: 011-2696666)
 
 OUTPUT FORMAT (JSON only, no markdown):
 {{
@@ -135,58 +96,46 @@ OUTPUT FORMAT (JSON only, no markdown):
 }}"""
 
         try:
-            if self.provider == "claude":
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=1024,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                content = response.content[0].text
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
 
-            elif self.provider == "openai":
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[{"role": "user", "content": prompt}],
-                    response_format={"type": "json_object"}
-                )
-                content = response.choices[0].message.content
+            payload = {
+                "model": self.model,
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1024,
+                "response_format": {"type": "json_object"}
+            }
 
-            elif self.provider == "gemini":
-                # Use REST API directly for reliability
-                import requests
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+            response = requests.post(
+                self.api_url,
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
 
-                payload = {
-                    "contents": [{
-                        "parts": [{
-                            "text": prompt
-                        }]
-                    }],
-                    "generationConfig": {
-                        "temperature": 0.7,
-                        "maxOutputTokens": 1024,
-                    }
-                }
+            if response.status_code == 200:
+                result = response.json()
+                content = result['choices'][0]['message']['content']
 
-                response = requests.post(url, json=payload, timeout=30)
+                # Parse JSON from response
+                content = content.replace("```json", "").replace("```", "").strip()
+                sample = json.loads(content)
 
-                if response.status_code == 200:
-                    result = response.json()
-                    content = result['candidates'][0]['content']['parts'][0]['text']
+                # Validate required fields
+                required_fields = ["instruction", "input", "response", "emotion", "risk_level"]
+                if all(field in sample for field in required_fields):
+                    return sample
                 else:
-                    raise Exception(f"Gemini API error: {response.status_code} - {response.text}")
-
-            # Parse JSON from response
-            # Remove markdown code blocks if present
-            content = content.replace("```json", "").replace("```", "").strip()
-            sample = json.loads(content)
-
-            # Validate required fields
-            required_fields = ["instruction", "input", "response", "emotion", "risk_level"]
-            if all(field in sample for field in required_fields):
-                return sample
+                    print(f"Warning: Missing fields in generated sample")
+                    return None
             else:
-                print(f"Warning: Missing fields in generated sample")
+                print(f"Error: Groq API returned {response.status_code}")
+                print(f"Response: {response.text}")
                 return None
 
         except Exception as e:
@@ -194,7 +143,7 @@ OUTPUT FORMAT (JSON only, no markdown):
             return None
 
     def generate_dataset(self, num_samples: int = 1000,
-                        output_file: str = "../data/synthetic_training_data.json",
+                        output_file: str = "../data/mental_health_dataset.json",
                         checkpoint_interval: int = 100) -> List[Dict]:
         """
         Generate complete dataset
@@ -277,10 +226,10 @@ OUTPUT FORMAT (JSON only, no markdown):
         dataset = []
         categories = list(seeds.keys())
 
-        print("=" * 60)
+        print("=" * 70)
         print(f"Generating {num_samples} synthetic training samples...")
-        print(f"Provider: {self.provider} | Model: {self.model}")
-        print("=" * 60)
+        print(f"Using Groq API | Model: {self.model}")
+        print("=" * 70)
 
         for i in range(num_samples):
             # Select category (weighted to avoid too many crisis samples)
@@ -319,8 +268,8 @@ OUTPUT FORMAT (JSON only, no markdown):
             else:
                 print(f"✗ Failed to generate sample")
 
-            # Rate limiting (be nice to APIs)
-            time.sleep(1)  # 1 second between requests
+            # Rate limiting (be nice to APIs) - Groq is fast so minimal delay
+            time.sleep(0.5)  # 0.5 second between requests
 
             # Save checkpoint
             if (i + 1) % checkpoint_interval == 0:
@@ -330,11 +279,11 @@ OUTPUT FORMAT (JSON only, no markdown):
         # Final save
         self._save_dataset(dataset, output_file)
 
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 70)
         print(f"✓ Dataset generation complete!")
         print(f"✓ Total samples: {len(dataset)}")
         print(f"✓ Saved to: {output_file}")
-        print("=" * 60)
+        print("=" * 70)
 
         return dataset
 
@@ -374,7 +323,7 @@ OUTPUT FORMAT (JSON only, no markdown):
                 "metadata": {
                     "total_samples": len(dataset),
                     "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "provider": self.provider,
+                    "provider": "groq",
                     "model": self.model,
                     "statistics": {
                         "categories": categories,
@@ -421,59 +370,41 @@ def print_statistics(dataset: List[Dict]):
 
 def main():
     """Main execution"""
-    parser = argparse.ArgumentParser(description="Generate synthetic mental health dataset")
-    parser.add_argument("--provider", choices=["openai", "claude", "gemini"],
-                       default="claude", help="LLM provider to use")
-    parser.add_argument("--api-key", help="API key (or set via environment variable)")
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic mental health dataset using Groq (FREE & FAST)"
+    )
+    parser.add_argument("--api-key", help="Groq API key (or set GROQ_API_KEY env variable)")
     parser.add_argument("--num-samples", type=int, default=1000,
-                       help="Number of samples to generate")
-    parser.add_argument("--output", default="../data/synthetic_training_data.json",
+                       help="Number of samples to generate (default: 1000)")
+    parser.add_argument("--output", default="../data/mental_health_dataset.json",
                        help="Output file path")
     parser.add_argument("--checkpoint", type=int, default=100,
-                       help="Checkpoint interval")
+                       help="Checkpoint interval (default: 100)")
 
     args = parser.parse_args()
 
     # Get API key from args or environment
-    api_key = args.api_key
+    api_key = args.api_key or os.getenv('GROQ_API_KEY')
+
     if not api_key:
-        env_vars = {
-            "claude": "ANTHROPIC_API_KEY",
-            "openai": "OPENAI_API_KEY",
-            "gemini": ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY"]  # Try multiple names
-        }
-
-        env_var_options = env_vars.get(args.provider)
-
-        # For gemini, try multiple environment variable names
-        if args.provider == "gemini":
-            for var_name in env_var_options:
-                api_key = os.getenv(var_name)
-                if api_key:
-                    print(f"✓ Found API key in {var_name}")
-                    break
-        else:
-            env_var = env_var_options
-            api_key = os.getenv(env_var)
-
-        if not api_key:
-            print(f"Error: API key not found!")
-            if args.provider == "gemini":
-                print(f"Set one of these environment variables:")
-                print(f"  export GEMINI_API_KEY=your-key")
-                print(f"  export GOOGLE_API_KEY=your-key")
-            else:
-                print(f"Set environment variable: export {env_var_options}=your-key")
-            print(f"Or use: --api-key your-key")
-            print(f"\nTo get a FREE Gemini API key:")
-            print(f"  1. Go to https://aistudio.google.com/app/apikey")
-            print(f"  2. Click 'Get API Key' or 'Create API Key'")
-            print(f"  3. Copy the key and set it as environment variable")
-            return
+        print("=" * 70)
+        print("ERROR: Groq API key not found!")
+        print("=" * 70)
+        print("\nTo get a FREE Groq API key:")
+        print("  1. Go to https://console.groq.com/keys")
+        print("  2. Sign up (FREE, no credit card required)")
+        print("  3. Click 'Create API Key'")
+        print("  4. Copy the key")
+        print("\nThen set it:")
+        print("  export GROQ_API_KEY=your-key-here")
+        print("Or:")
+        print("  python3 generate_dataset.py --api-key your-key-here")
+        print("\n" + "=" * 70)
+        return
 
     # Initialize generator
     try:
-        generator = DatasetGenerator(api_key=api_key, provider=args.provider)
+        generator = DatasetGenerator(api_key=api_key)
     except Exception as e:
         print(f"Error initializing generator: {e}")
         return
@@ -489,10 +420,10 @@ def main():
     print_statistics(dataset)
 
     print("\n✅ Done! Next steps:")
-    print("1. Review samples manually (check quality)")
-    print("2. Run: python scripts/validate_dataset.py")
-    print("3. Format for training: python scripts/format_dataset.py")
-    print("4. Train model: python backend/train_model_lora.py")
+    print("1. Review samples: cat ../data/mental_health_dataset.json")
+    print("2. Validate quality: Check a few samples manually")
+    print("3. Train model: python3 ../backend/train_model.py")
+    print("4. Fine-tune model: python3 ../backend/fine_tune_model.py")
 
 
 if __name__ == "__main__":
