@@ -2,41 +2,97 @@
   "anxiety": [
     "I can hear that you're feeling anxious. Anxiety can be overwhelming, but you're not alone in this.",
     "It sounds like anxiety is really affecting you right now. Let's work through this together.",
-    "Anxiety can make everything feel urgent and scary. Take a deep breath with me."
+    "Anxiety can make everything feel urgent and scary. Take a deep breath with me.",
+    "I hear you - anxiety has this way of making your mind race with 'what ifs'. That constant worry is exhausting. What's been on your mind most?",
+    "That sounds really overwhelming. Your mind is working overtime trying to protect you, but it's draining. What would feel most helpful to talk about right now?",
+    "Anxiety can feel like you're stuck in overdrive with no off switch. Many people experience this, and there are ways through it. When did you first notice these feelings?",
+    "Those racing thoughts and constant worry - they're genuinely draining. You're not imagining how hard this is. Can you tell me more about what triggers these feelings?",
+    "I really appreciate you sharing this. Anxiety can feel so isolating. Let's talk about what might help bring even a little bit of calm."
   ],
   "depression": [
     "I hear the heaviness in what you're sharing. Depression can make everything feel so difficult.",
     "You're dealing with some really tough feelings. Thank you for trusting me with this.",
-    "Depression can be isolating, but please know you don't have to face this alone."
+    "Depression can be isolating, but please know you don't have to face this alone.",
+    "Thank you for trusting me with this. What you're describing - that heaviness, the lack of joy - I hear you. Depression lies to us, but things can get better. How long have you been feeling this way?",
+    "I'm really glad you reached out. Depression can make everything feel gray and pointless, and it takes courage to talk about it. What feels hardest right now?",
+    "That sounds really, really hard. When nothing brings joy and each day feels like climbing a mountain - that's depression making everything heavier. What would support look like for you?",
+    "The emptiness you're describing - it's a symptom of depression, not a truth about your life or worth. You deserve support and care. Have you been able to talk to anyone else about this?",
+    "I can tell you're going through something really difficult. Depression convinces us we're alone and nothing will help - but those are lies it tells. People do get through this."
   ],
   "anger": [
     "I can sense you're feeling frustrated. It's okay to feel angry - these emotions are valid.",
     "That sounds really frustrating. Anger often signals that something important to us is being threatened.",
-    "Your feelings of anger are completely understandable given what you're going through."
+    "Your feelings of anger are completely understandable given what you're going through.",
+    "Anger can be a powerful emotion - it's often protecting something important to you. What's underneath this frustration?",
+    "It's okay to feel angry. Sometimes anger is the appropriate response to an unfair situation. What happened?",
+    "Your frustration makes sense. Anger is often a sign that our boundaries have been crossed or our needs aren't being met.",
+    "That sounds incredibly frustrating. Anger can be exhausting to carry. What would help you feel heard right now?"
   ],
   "loneliness": [
     "Feeling lonely can be so painful. Human connection is a fundamental need.",
     "Loneliness can feel overwhelming. You've taken a brave step by reaching out here.",
-    "I hear that you're feeling isolated. That's a really difficult emotion to carry."
+    "I hear that you're feeling isolated. That's a really difficult emotion to carry.",
+    "Loneliness is one of the hardest human experiences. Even in a crowded room, that sense of not being truly seen - it hurts. What kind of connection are you missing most?",
+    "That feeling of being invisible or disconnected - it's more common than people admit, but that doesn't make it hurt any less. You matter. What's making you feel this way?",
+    "You reaching out right now is already a step toward connection. I'm here with you in this moment. Can you tell me more about what's making you feel isolated?",
+    "Human connection is a basic need. When we don't have it, it affects everything. I'm sorry you're feeling so alone."
   ],
   "stress": [
     "It sounds like you're under a lot of pressure right now. Stress can be exhausting.",
     "You're dealing with a lot. It's understandable that you're feeling overwhelmed.",
-    "Stress can affect every part of our lives. Let's see if we can break this down together."
+    "Stress can affect every part of our lives. Let's see if we can break this down together.",
+    "Wow, that's a lot to be carrying. When stress piles up like that, it can feel like you're being crushed. What's the biggest source of pressure right now?",
+    "I hear you - it sounds like you're being pulled in a million directions. That kind of constant stress isn't sustainable. What would it feel like to let just one thing go?",
+    "That level of pressure is a lot for anyone. Our bodies and minds aren't meant to run at full capacity all the time. Have you had any moments of rest lately?",
+    "When everything feels urgent, it's hard to know where to even start. Take a breath. Let's break this down. What absolutely needs your attention today?"
   ],
   "positive": [
     "I'm glad to hear you're feeling more positive. What's contributing to this improvement?",
     "That's wonderful to hear! Celebrating these moments is important.",
-    "It sounds like things are looking up. What's been helping you feel this way?"
+    "It sounds like things are looking up. What's been helping you feel this way?",
+    "That's really great to hear! Progress, even small progress, matters. What do you think has been helping?",
+    "I'm genuinely happy things are feeling a bit lighter. Keep noticing these moments - they're proof that things can get better.",
+    "You put in the work and it's paying off. Keep going - you've got this!",
+    "Remember this feeling on harder days - it's proof that good moments are possible. What would you like to keep working on?"
   ],
   "general": [
     "Thank you for sharing that with me. I'm here to listen and support you.",
     "I appreciate you opening up. Tell me more about what's on your mind.",
-    "You're not alone in this. I'm here to help however I can."
+    "You're not alone in this. I'm here to help however I can.",
+    "I'm listening. Your feelings and experiences matter. What's been weighing on you?",
+    "Thank you for trusting me with this. I want to understand what you're going through.",
+    "I hear you. It takes courage to talk about what you're experiencing. What would be most helpful to discuss?"
   ],
   "crisis": [
     "I'm very concerned about what you're sharing. Your safety is the most important thing right now.",
     "These feelings you're describing are serious, and I want to make sure you get the right support.",
-    "What you're going through sounds incredibly painful. Please know that help is available."
+    "What you're going through sounds incredibly painful. Please know that help is available.",
+    "I'm taking what you're saying very seriously. The pain you're in is real, but there is help available. You don't have to face this alone.",
+    "I hear how much pain you're in. These feelings are telling me you need more support than I can give alone. Can we talk about getting you connected with someone who can help right now?",
+    "Your life matters. What you're feeling right now is temporary, even though it doesn't feel that way. Please reach out to a crisis line - they're there for exactly this."
+  ],
+  "academic_stress": [
+    "The pressure around exams and academics can be intense. But your worth isn't defined by exam results. What's making this feel most overwhelming?",
+    "Academic pressure, especially with competition, can feel crushing. Your stress is valid. Remember - many successful people didn't have perfect marks.",
+    "Exams are stressful enough without all the expectations adding to it. You're doing your best in a really tough system. How can I support you?",
+    "I understand that academic success feels like everything right now. But you are more than your grades. Have you been able to talk to anyone about this?",
+    "The A/L system puts so much pressure on students. That's a heavy burden to carry. Are you taking care of yourself while studying?"
+  ],
+  "family_issues": [
+    "Family relationships can be complicated, especially when expectations don't match who we really are. Your feelings are valid.",
+    "That sounds hard - when the people who should understand us seem to see someone different. What would help you feel more understood?",
+    "Family conflict is exhausting, especially when home doesn't feel safe. What do you need right now?",
+    "Navigating family expectations while being true to yourself is one of the hardest things. I hear the pressure you're under."
+  ],
+  "cultural_pressure": [
+    "The tension between cultural expectations and personal desires is real. You're not wrong for wanting to live your own life.",
+    "Being caught between cultures or generations is genuinely hard. You're not alone in this struggle.",
+    "What you're experiencing - that pull between tradition and your own path - many people face but rarely discuss openly. Your feelings are valid.",
+    "I understand how suffocating it can feel when society and family have a specific path mapped out for you. Your dreams matter too."
+  ],
+  "self_harm": [
+    "Thank you for trusting me with something so personal. Self-harm is often a way of coping with unbearable pain. You deserve healthier ways to cope.",
+    "I hear you, and I'm not judging you. There are other ways to manage overwhelming emotions - ways that don't hurt you. Would you be open to exploring some?",
+    "What you're describing tells me you're in a lot of pain. You deserve support in finding healthier coping strategies. Can we talk about what triggers these urges?"
   ]
 }
