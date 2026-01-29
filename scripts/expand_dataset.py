@@ -145,21 +145,32 @@ class DatasetExpander:
 
         samples = []
 
-        # Define categories and their weights
-        category_distribution = {
-            "anxiety": 250,
-            "depression": 200,
-            "stress": 200,
-            "academic_stress": 200,
-            "family_issues": 150,
-            "cultural_pressure": 100,
-            "loneliness": 100,
-            "financial_stress": 80,
-            "relationship": 80,
-            "crisis": 50,
-            "self_harm": 30,
-            "positive": 60
+        # Define categories and their proportional weights (sum to 1.0)
+        category_weights = {
+            "anxiety": 0.167,
+            "depression": 0.133,
+            "stress": 0.133,
+            "academic_stress": 0.133,
+            "family_issues": 0.100,
+            "cultural_pressure": 0.067,
+            "loneliness": 0.067,
+            "financial_stress": 0.053,
+            "relationship": 0.053,
+            "crisis": 0.033,
+            "self_harm": 0.020,
+            "positive": 0.040,
         }
+
+        # Calculate actual counts from weights
+        category_distribution = {}
+        assigned = 0
+        for cat, weight in category_weights.items():
+            count = int(num_samples * weight)
+            category_distribution[cat] = count
+            assigned += count
+        # Distribute remainder to largest category
+        if assigned < num_samples:
+            category_distribution["anxiety"] += (num_samples - assigned)
 
         # Base inputs for each category
         category_inputs = {
@@ -169,7 +180,20 @@ class DatasetExpander:
                 "My heart races and I feel panicky",
                 "I'm constantly nervous and on edge",
                 "I have panic attacks frequently",
-                "I worry all the time and can't relax"
+                "I worry all the time and can't relax",
+                "my anxiety is through the roof",
+                "can't shake this anxious feeling",
+                "everything makes me anxious these days",
+                "i get so nervous i feel sick",
+                "my mind won't stop racing",
+                "i feel like something bad is going to happen",
+                "the anxiety is overwhelming me",
+                "i'm scared all the time for no reason",
+                "my chest gets tight when i'm stressed",
+                "social situations make me so anxious",
+                "i overthink everything constantly",
+                "i can't control my worrying",
+                "anxiety keeps me up at night",
             ],
             "depression": [
                 "I feel sad all the time",
@@ -177,7 +201,19 @@ class DatasetExpander:
                 "I have no energy to do anything",
                 "I feel empty inside",
                 "I've lost interest in everything I used to enjoy",
-                "I feel hopeless about the future"
+                "I feel hopeless about the future",
+                "everything feels pointless",
+                "i don't enjoy anything anymore",
+                "i'm just so tired of everything",
+                "why even bother getting out of bed",
+                "life feels meaningless",
+                "i feel numb all the time",
+                "nothing brings me joy",
+                "i've been crying a lot lately",
+                "i feel like a failure",
+                "the sadness won't go away",
+                "i'm tired of pretending to be okay",
+                "i can't see things getting better",
             ],
             "stress": [
                 "I'm under so much pressure",
@@ -185,7 +221,17 @@ class DatasetExpander:
                 "I can't handle all this stress",
                 "I'm so stressed I can't think straight",
                 "The stress is affecting my health",
-                "I feel like I'm drowning in responsibilities"
+                "I feel like I'm drowning in responsibilities",
+                "there's too much on my plate",
+                "i can't catch a break",
+                "stress is eating me alive",
+                "i'm at my breaking point",
+                "everything is piling up",
+                "the pressure is too much",
+                "i'm burned out completely",
+                "i have no time for myself",
+                "everyone wants something from me",
+                "i'm running on empty",
             ],
             "academic_stress": [
                 "I'm stressed about my A/L exams",
@@ -194,7 +240,18 @@ class DatasetExpander:
                 "I can't handle the academic workload",
                 "I'm afraid I'll fail and disappoint everyone",
                 "University admissions are making me anxious",
-                "My exam results are causing me so much stress"
+                "My exam results are causing me so much stress",
+                "i bombed my exam and feel terrible",
+                "my grades are slipping and i can't stop it",
+                "everyone expects me to get top marks",
+                "i'm not smart enough for this course",
+                "the competition is so intense i can't cope",
+                "my future depends on these results",
+                "i can't focus on studying anymore",
+                "exam pressure is crushing me",
+                "what if i don't get into university",
+                "my parents will be so disappointed if i fail",
+                "A/Ls are destroying my mental health",
             ],
             "family_issues": [
                 "My parents don't understand me",
@@ -202,7 +259,17 @@ class DatasetExpander:
                 "There's constant conflict at home",
                 "My parents want me to be someone I'm not",
                 "I feel trapped by family obligations",
-                "My family doesn't support my choices"
+                "My family doesn't support my choices",
+                "my parents are always fighting",
+                "home doesn't feel safe anymore",
+                "they compare me to my siblings all the time",
+                "nothing i do is good enough for them",
+                "i wish my parents would listen to me",
+                "they don't take my feelings seriously",
+                "i feel invisible at home",
+                "my parents control everything i do",
+                "i can't be myself around family",
+                "family pressure is suffocating me",
             ],
             "cultural_pressure": [
                 "My family wants me to follow a certain career path",
@@ -210,7 +277,15 @@ class DatasetExpander:
                 "People judge me for my choices",
                 "I feel torn between my culture and what I want",
                 "Society's expectations are overwhelming",
-                "I can't be myself because of cultural norms"
+                "I can't be myself because of cultural norms",
+                "everyone has opinions about my life",
+                "arranged marriage pressure is too much",
+                "i can't pursue my passion because of family",
+                "what will people say about me",
+                "our community is so judgmental",
+                "i have to hide who i really am",
+                "i feel like i'm living for others not myself",
+                "cultural expectations are suffocating",
             ],
             "loneliness": [
                 "I feel so alone",
@@ -218,7 +293,15 @@ class DatasetExpander:
                 "I feel isolated even around people",
                 "Nobody understands what I'm going through",
                 "I feel disconnected from everyone",
-                "I'm lonely and it hurts"
+                "I'm lonely and it hurts",
+                "i don't have any real friends",
+                "everyone has someone but me",
+                "i feel invisible to the world",
+                "no one reaches out to me",
+                "i'm surrounded by people but still lonely",
+                "i miss having someone who cares",
+                "nobody would notice if i disappeared",
+                "i don't fit in anywhere",
             ],
             "financial_stress": [
                 "My family is struggling financially",
@@ -226,14 +309,27 @@ class DatasetExpander:
                 "I worry about money constantly",
                 "I can't afford university fees",
                 "Financial problems are overwhelming me",
-                "The cost of living is too much"
+                "The cost of living is too much",
+                "money stress is killing me",
+                "i don't know how we'll pay the bills",
+                "i feel guilty for being a financial burden",
+                "i work so hard but it's never enough",
+                "financial stress affects everything in my life",
+                "debt is crushing me",
             ],
             "relationship": [
                 "I'm having problems in my relationship",
                 "I feel like nobody cares about me",
                 "My relationships are falling apart",
                 "I don't know how to fix my relationship",
-                "I feel abandoned by people I trusted"
+                "I feel abandoned by people I trusted",
+                "my partner doesn't understand me",
+                "we fight all the time now",
+                "i feel unloved by everyone",
+                "trust issues are ruining my relationships",
+                "i got my heart broken badly",
+                "i can't move on from the breakup",
+                "i'm scared of getting hurt again",
             ],
             "crisis": [
                 "I don't see the point in living anymore",
@@ -241,13 +337,23 @@ class DatasetExpander:
                 "I don't think I can go on",
                 "I feel like a burden to everyone",
                 "Nothing will ever get better",
-                "I don't want to be here anymore"
+                "I don't want to be here anymore",
+                "i want everything to end",
+                "i can't do this anymore",
+                "what's the point of living",
+                "everyone would be better off without me",
+                "i'm tired of existing",
+                "life is unbearable",
             ],
             "self_harm": [
                 "I've been hurting myself",
                 "I can't stop thinking about self-harm",
                 "I hurt myself when things get too much",
-                "I don't know how to cope without hurting myself"
+                "I don't know how to cope without hurting myself",
+                "cutting helps me feel something",
+                "i use pain to distract from emotions",
+                "self-harm is my only release",
+                "i've been hiding the scars",
             ],
             "positive": [
                 "I've been feeling better lately",
@@ -255,7 +361,13 @@ class DatasetExpander:
                 "I talked to someone and it helped",
                 "I'm making progress",
                 "Things are getting a bit better",
-                "Thank you for your support"
+                "Thank you for your support",
+                "i tried what you suggested and it worked",
+                "today was actually okay",
+                "i'm starting to feel hopeful again",
+                "small steps are helping me",
+                "therapy is really helping",
+                "i feel a little lighter today",
             ]
         }
 

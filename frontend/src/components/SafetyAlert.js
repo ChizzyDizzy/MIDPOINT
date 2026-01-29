@@ -55,12 +55,15 @@ const SafetyAlert = ({ safetyData, onClose }) => {
           onClick={onClose}
           style={{
             marginTop: "20px",
-            padding: "10px 20px",
-            background: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
+            padding: "12px 24px",
+            background: "#4f46e5",
+            color: "#fff",
+            border: "2px solid #818cf8",
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: "0.6rem",
             cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
           }}
         >
           I understand{" "}
