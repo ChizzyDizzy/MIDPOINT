@@ -2,7 +2,7 @@
 
 AI-powered mental health support assistant designed for Sri Lankan socio-cultural context.
 
-**Staffordshire University BSc Software Engineering - Final Year Project**
+**Staffordshire University BSc Software Engineering**
 
 ---
 

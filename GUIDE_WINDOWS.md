@@ -2,6 +2,8 @@
 
 **Complete guide: Generate dataset, train model, and run the chatbot on Windows.**
 
+All commands in this guide are for **Git Bash** (installed with Git for Windows).
+
 ---
 
 ## Prerequisites
@@ -15,7 +17,8 @@
 2. **Node.js 16+** - Download LTS from https://nodejs.org/
    - Verify: `node --version`
 
-3. **Git** - Download from https://git-scm.com/download/win
+3. **Git for Windows** - Download from https://git-scm.com/download/win
+   - This installs **Git Bash** which you will use for all commands
    - Verify: `git --version`
 
 ### Accounts
@@ -30,44 +33,45 @@
 
 ## Part 1: Project Setup
 
+Open **Git Bash** for all commands below.
+
 ### 1.1 Clone and Enter the Project
 
-```cmd
-cd %USERPROFILE%\Documents
+```bash
+cd ~/Documents
 git clone https://github.com/ChizzyDizzy/MIDPOINT.git
 cd MIDPOINT
 ```
 
 ### 1.2 Backend Setup
 
-```cmd
+```bash
 cd backend
 
-:: Create and activate virtual environment
+# Create and activate virtual environment
 python -m venv venv
-venv\Scripts\activate
+source venv/Scripts/activate
 
-:: Upgrade pip
-python -m pip install --upgrade pip
+# Upgrade pip
+pip install --upgrade pip
 
-:: Install backend dependencies
+# Install backend dependencies
 pip install -r requirements.txt
 
-:: Install ML libraries
+# Install ML libraries
 pip install torch transformers datasets accelerate peft
 
-:: Download NLP data
+# Download NLP data
 python -m textblob.download_corpora
 ```
 
 ### 1.3 Configure Environment
 
-```cmd
-copy .env.example .env
-notepad .env
+```bash
+cp .env.example .env
 ```
 
-Fill in `.env`:
+Open `.env` in any text editor and fill in:
 
 ```
 HUGGINGFACE_API_KEY=hf_your_token_here
@@ -83,15 +87,15 @@ DEFAULT_CULTURE=south_asian
 
 Generate a secret key:
 
-```cmd
+```bash
 python -c "import secrets; print(secrets.token_hex(32))"
-:: Paste the output as FLASK_SECRET_KEY in .env
+# Paste the output as FLASK_SECRET_KEY in .env
 ```
 
 ### 1.4 Frontend Setup
 
-```cmd
-cd ..\frontend
+```bash
+cd ../frontend
 npm install
 ```
 
@@ -101,11 +105,11 @@ npm install
 
 This uses template expansion - no API keys needed.
 
-```cmd
-cd ..\scripts
+```bash
+cd ../scripts
 
-:: Generate 4000 training samples
-python expand_dataset.py --num-samples 4000 --output ..\data\mental_health_dataset.json
+# Generate 4000 training samples
+python expand_dataset.py --num-samples 4000 --output ../data/mental_health_dataset.json
 ```
 
 You will see:
@@ -120,8 +124,8 @@ Total samples: 4000
 
 ### Verify the dataset
 
-```cmd
-python -c "import json; data=json.load(open('..\data\mental_health_dataset.json')); print(f'Total: {len(data[\"samples\"])} samples')"
+```bash
+python -c "import json; data=json.load(open('../data/mental_health_dataset.json')); print(f'Total: {len(data[\"samples\"])} samples')"
 ```
 
 ---
@@ -130,8 +134,8 @@ python -c "import json; data=json.load(open('..\data\mental_health_dataset.json'
 
 > If your PC does not have a GPU or enough memory, use the **[Cloud Training Guide](GUIDE_CLOUD_TRAINING.md)** instead.
 
-```cmd
-cd ..\backend
+```bash
+cd ../backend
 python train_model.py
 ```
 
@@ -148,20 +152,20 @@ AI_BACKEND=local
 
 ## Part 4: Run the Application
 
-You need two Command Prompt windows.
+You need two Git Bash windows.
 
-### CMD Window 1 - Backend
+### Git Bash Window 1 - Backend
 
-```cmd
-cd %USERPROFILE%\Documents\MIDPOINT\backend
-venv\Scripts\activate
+```bash
+cd ~/Documents/MIDPOINT/backend
+source venv/Scripts/activate
 python app_improved.py
 ```
 
-### CMD Window 2 - Frontend
+### Git Bash Window 2 - Frontend
 
-```cmd
-cd %USERPROFILE%\Documents\MIDPOINT\frontend
+```bash
+cd ~/Documents/MIDPOINT/frontend
 npm start
 ```
 
@@ -182,9 +186,9 @@ Try these messages:
 
 Run automated tests:
 
-```cmd
-cd %USERPROFILE%\Documents\MIDPOINT\backend
-venv\Scripts\activate
+```bash
+cd ~/Documents/MIDPOINT/backend
+source venv/Scripts/activate
 python test_mvp.py
 ```
 
@@ -194,12 +198,12 @@ python test_mvp.py
 
 | Problem | Solution |
 |---------|----------|
-| `python is not recognized` | Reinstall Python and check "Add to PATH" |
-| `Module not found` | Activate venv: `venv\Scripts\activate` |
+| `python: command not found` | Reinstall Python and check "Add to PATH", or use `python3` |
+| `Module not found` | Activate venv: `source venv/Scripts/activate` |
 | Model not found | Run `train_model.py` first, or use Cloud Training guide |
 | Out of memory during training | Use the [Cloud Training Guide](GUIDE_CLOUD_TRAINING.md) |
 | Frontend can't connect | Make sure backend is running on port 5000 |
-| Port already in use | `netstat -ano | findstr :5000` then `taskkill /PID <number> /F` |
+| Port already in use | `netstat -ano | grep 5000` to find PID, then `taskkill //PID <number> //F` |
 | `npm start` fails | Delete `node_modules` folder and run `npm install` again |
 
 ---
