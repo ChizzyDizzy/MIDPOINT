@@ -252,7 +252,7 @@ def system_status():
 @app.route('/api/test', methods=['POST'])
 def test_endpoint():
     """
-    Test endpoint for MVP demonstration
+    Test endpoint for system verification
     Shows Input → Process → Output flow
     """
     data = request.json
@@ -286,7 +286,7 @@ def test_endpoint():
     }
 
     return jsonify({
-        'test': 'SafeMind AI MVP Test',
+        'test': 'SafeMind AI System Test',
         'input': input_data,
         'process': process_data,
         'output': output_data,
@@ -314,7 +314,7 @@ def internal_error(error):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("SafeMind AI - Mental Health Assistant MVP")
+    print("SafeMind AI - Mental Health Assistant")
     print("=" * 60)
     print(f"AI Model: {SYSTEM_STATUS['model']}")
     print(f"AI Enabled: {SYSTEM_STATUS['ai_enabled']}")

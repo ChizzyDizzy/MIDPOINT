@@ -1,6 +1,6 @@
 """
-SafeMind AI - MVP Testing Script
-Demonstrates Input → Process → Output functionality
+SafeMind AI - Testing Script
+Tests crisis detection, AI response generation, and cultural adaptation.
 """
 
 import sys
@@ -10,11 +10,11 @@ from ai_model_free import SafeMindAI
 from enhanced_safety_detector import EnhancedSafetyDetector
 from cultural_adapter import CulturalAdapter
 
-class MVPTester:
+class SafeMindTester:
     def __init__(self):
         """Initialize testing components"""
         print("=" * 80)
-        print("SafeMind AI - MVP Testing Suite")
+        print("SafeMind AI - Testing Suite")
         print("=" * 80)
         print("Initializing components...")
 
@@ -191,7 +191,7 @@ class MVPTester:
 
 def main():
     """Main testing function"""
-    tester = MVPTester()
+    tester = SafeMindTester()
 
     print("\nSelect test mode:")
     print("1. Run all test cases")
