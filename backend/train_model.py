@@ -130,16 +130,46 @@ print()
 print("[5/7] Setting up training configuration...")
 print("-" * 70)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-use_fp16 = torch.cuda.is_available()
+use_fp16 = False
 
-print(f"Training device: {device.upper()}")
-if device == "cuda":
+if torch.cuda.is_available():
+    device = "cuda"
+    print(f"Training device: NVIDIA GPU")
     print(f"  GPU: {torch.cuda.get_device_name(0)}")
+    use_fp16 = True
     print(f"  FP16 mixed precision: enabled")
 else:
-    print("  No GPU detected, training on CPU")
-    print("  For faster training, use the Cloud Training Guide (GUIDE_CLOUD_TRAINING.md)")
+    device = "cpu"
+    # Check for AMD GPU (not supported by PyTorch CUDA)
+    try:
+        import subprocess
+        gpu_check = subprocess.run(
+            ['wmic', 'path', 'win32_VideoController', 'get', 'name'],
+            capture_output=True, text=True, timeout=5
+        )
+        gpu_name = gpu_check.stdout.strip()
+        if any(keyword in gpu_name.lower() for keyword in ['amd', 'radeon', 'rx ']):
+            print("Training device: CPU")
+            print()
+            print("  NOTE: AMD GPU detected but PyTorch CUDA only supports NVIDIA GPUs.")
+            print("  Your AMD GPU cannot be used for training with PyTorch on Windows.")
+            print()
+            print("  RECOMMENDED: Use Google Colab for free NVIDIA T4 GPU training.")
+            print("  See GUIDE_CLOUD_TRAINING.md for step-by-step instructions.")
+            print("  Training on Colab takes ~15-20 minutes vs hours on CPU.")
+        else:
+            print("Training device: CPU")
+            print("  For faster training, see GUIDE_CLOUD_TRAINING.md")
+    except Exception:
+        print("Training device: CPU")
+        print("  For faster training, see GUIDE_CLOUD_TRAINING.md")
+
+    # Optimize for CPU training
+    BATCH_SIZE = 2
+    NUM_EPOCHS = 3
+    print()
+    print(f"  CPU mode: batch size reduced to {BATCH_SIZE}, epochs to {NUM_EPOCHS}")
+
 print()
 
 training_args = TrainingArguments(
@@ -155,6 +185,7 @@ training_args = TrainingArguments(
     logging_dir='./logs',
     report_to="none",
     fp16=use_fp16,
+    dataloader_pin_memory=False,
 )
 
 data_collator = DataCollatorForLanguageModeling(
