@@ -217,15 +217,15 @@ Remember: You are a supportive companion, not a replacement for professional men
         """Generate response using local Hugging Face model (completely FREE)"""
         import torch
 
-        # Encode input
-        input_text = f"User: {user_message}\nBot:"
+        # Use the same format the model was trained on
+        input_text = f"<|user|> {user_message}\n<|assistant|>"
         input_ids = self.tokenizer.encode(input_text, return_tensors='pt').to(self.device)
 
         # Generate response
         with torch.no_grad():
             output = self.local_model.generate(
                 input_ids,
-                max_length=input_ids.shape[1] + 100,
+                max_new_tokens=150,
                 num_return_sequences=1,
                 temperature=0.7,
                 top_p=0.9,
@@ -235,11 +235,46 @@ Remember: You are a supportive companion, not a replacement for professional men
 
         # Decode response
         response = self.tokenizer.decode(output[0], skip_special_tokens=True)
-        # Extract only the bot's response
-        if "Bot:" in response:
-            response = response.split("Bot:")[-1].strip()
+
+        # Extract only the assistant's response
+        if "<|assistant|>" in response:
+            response = response.split("<|assistant|>")[-1].strip()
+        elif "<|user|>" in response:
+            # Remove the input portion
+            parts = response.split("<|user|>")
+            response = parts[-1].strip() if len(parts) > 1 else response
+
+        # Validate response quality - fall back to templates if garbage
+        if self._is_garbage_response(response):
+            return self._generate_fallback_response(user_message, emotion)
 
         return response
+
+    def _is_garbage_response(self, response: str) -> bool:
+        """Check if a model response is garbage and should be replaced with fallback"""
+        # Empty or too short
+        if not response or len(response.strip()) < 10:
+            return True
+
+        # Contains usernames/bot names (sign of untrained DialoGPT Reddit output)
+        garbage_indicators = [
+            'u/', 'r/', '/u/', '/r/', 'reddit',
+            'Bot', 'bot ', 'Poster', 'Cleaner',
+            'http://', 'https://', 'www.',
+            'lol', 'lmao', 'rofl', 'bruh',
+            'User :', 'User:', 'Bot:',
+        ]
+        response_lower = response.lower()
+        for indicator in garbage_indicators:
+            if indicator.lower() in response_lower:
+                return True
+
+        # Too many special characters (corrupted output)
+        special_count = sum(1 for c in response if not c.isalnum() and c not in ' .,!?\'"-:;()\n')
+        if len(response) > 0 and special_count / len(response) > 0.3:
+            return True
+
+        return False
 
     def _construct_prompt(
         self,

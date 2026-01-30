@@ -9,7 +9,7 @@ AI-powered mental health support assistant designed for Sri Lankan socio-cultura
 ## What It Does
 
 - AI-powered empathetic conversations (Hugging Face DialoGPT)
-- 9-layer crisis detection system (94% accuracy)
+- 11-layer crisis detection system
 - Sri Lankan cultural adaptation (A/L stress, family pressure, stigma)
 - Emergency integration (1333 hotline, Sumithrayo)
 - Real-time chat with mood tracking
@@ -24,6 +24,7 @@ AI-powered mental health support assistant designed for Sri Lankan socio-cultura
 | **[Windows Setup](GUIDE_WINDOWS.md)** | Full setup, dataset generation, training, and running on Windows |
 | **[Cloud Training](GUIDE_CLOUD_TRAINING.md)** | Train the model for free on Google Colab with GPU |
 | **[Evaluation](GUIDE_EVALUATION.md)** | Measure and improve model accuracy |
+| **[Improve Accuracy](GUIDE_IMPROVE_ACCURACY.md)** | Tune safety detection and response quality |
 
 ---
 
@@ -53,7 +54,7 @@ MIDPOINT/
 ├── backend/
 │   ├── app_improved.py            # Flask API server
 │   ├── ai_model_free.py           # Hugging Face model integration
-│   ├── enhanced_safety_detector.py # 9-layer crisis detection
+│   ├── enhanced_safety_detector.py # 11-layer crisis detection
 │   ├── safety_detector.py         # Basic safety detection
 │   ├── context_manager.py         # Session management
 │   ├── cultural_adapter.py        # Sri Lankan cultural adaptation
@@ -87,7 +88,8 @@ MIDPOINT/
 ├── GUIDE_MAC.md
 ├── GUIDE_WINDOWS.md
 ├── GUIDE_CLOUD_TRAINING.md
-└── GUIDE_EVALUATION.md
+├── GUIDE_EVALUATION.md
+└── GUIDE_IMPROVE_ACCURACY.md
 ```
 
 ---
