@@ -10,32 +10,46 @@
       "goodbye forever",
       "final goodbye",
       "can't go on",
-      "ending it all"
+      "ending it all",
+      "die today",
+      "not wake up"
     ],
     "high": [
       "self-harm",
       "hurt myself",
       "cutting",
-      "overdose",
       "hopeless",
       "worthless",
       "no point",
       "give up",
       "can't take it anymore",
       "disappear",
-      "harm myself"
+      "harm myself",
+      "no point living",
+      "no future",
+      "hate myself",
+      "better off without me",
+      "burden to everyone"
     ],
     "medium": [
       "depressed",
+      "depression",
       "anxious all the time",
       "panic attacks",
       "can't sleep",
       "can't eat",
-      "overwhelming",
       "breaking down",
       "falling apart",
       "losing control",
-      "can't function"
+      "can't function",
+      "trapped",
+      "desperate",
+      "empty",
+      "numb",
+      "nothing makes me happy",
+      "sad all the time",
+      "feel nothing",
+      "crying all the time"
     ],
     "low": [
       "stressed",
@@ -45,7 +59,23 @@
       "concerned",
       "troubled",
       "bothered",
-      "unsettled"
+      "unsettled",
+      "anxious",
+      "anxiety",
+      "sad",
+      "unhappy",
+      "lonely",
+      "scared",
+      "frustrated",
+      "overwhelmed",
+      "overwhelming",
+      "pressure",
+      "struggling",
+      "difficult time",
+      "hard time",
+      "not feeling great",
+      "feeling down",
+      "stressful"
     ]
   },
   "phrases": [
@@ -88,7 +118,7 @@
   "cultural_considerations": {
     "south_asian": {
       "stigma_phrases": ["shame to family", "dishonor", "what will people say", "society"],
-      "family_pressure": ["parents expect", "family duty", "arranged marriage", "career pressure"],
+      "family_pressure": ["parents expect", "family expects", "family duty", "arranged marriage", "career pressure", "become a doctor", "become an engineer", "family wants me to"],
       "isolation_markers": ["can't tell anyone", "secret", "hiding", "pretending"]
     }
   },

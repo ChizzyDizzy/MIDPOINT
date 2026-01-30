@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 
 # Import improved components
-from safety_detector import SafetyDetector
+from enhanced_safety_detector import EnhancedSafetyDetector
 from context_manager import ContextManager
 from ai_model_free import SafeMindAI
 from cultural_adapter import CulturalAdapter
@@ -25,7 +25,7 @@ app.config.from_object(Config)
 CORS(app, supports_credentials=True)
 
 # Initialize components
-safety_detector = SafetyDetector()
+safety_detector = EnhancedSafetyDetector()
 context_manager = ContextManager()
 ai_model = SafeMindAI()
 cultural_adapter = CulturalAdapter()
