@@ -8,11 +8,12 @@ AI-powered mental health support assistant designed for Sri Lankan socio-cultura
 
 ## What It Does
 
-- AI-powered empathetic conversations (Hugging Face DialoGPT)
+- AI-powered empathetic conversations (OpenAI ChatGPT or local model)
 - 11-layer crisis detection system
 - Sri Lankan cultural adaptation (A/L stress, family pressure, stigma)
 - Emergency integration (1333 hotline, Sumithrayo)
 - Real-time chat with mood tracking
+- Retro pixel-art UI theme
 
 ---
 
@@ -20,9 +21,10 @@ AI-powered mental health support assistant designed for Sri Lankan socio-cultura
 
 | Guide | Description |
 |-------|-------------|
+| **[OpenAI Setup](GUIDE_OPENAI.md)** | Get running with ChatGPT API (recommended, best responses) |
 | **[macOS Setup](GUIDE_MAC.md)** | Full setup, dataset generation, training, and running on Mac |
 | **[Windows Setup](GUIDE_WINDOWS.md)** | Full setup, dataset generation, training, and running on Windows |
-| **[Cloud Training](GUIDE_CLOUD_TRAINING.md)** | Train the model for free on Google Colab with GPU |
+| **[Cloud Training](GUIDE_CLOUD_TRAINING.md)** | Train a local model for free on Google Colab with GPU |
 | **[Evaluation](GUIDE_EVALUATION.md)** | Measure and improve model accuracy |
 | **[Improve Accuracy](GUIDE_IMPROVE_ACCURACY.md)** | Tune safety detection and response quality |
 
@@ -33,9 +35,9 @@ AI-powered mental health support assistant designed for Sri Lankan socio-cultura
 ```bash
 # 1. Backend
 cd backend
-python3 -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+python3 -m venv venv && source venv/bin/activate   # Windows: source venv/Scripts/activate
 pip install -r requirements.txt
-cp .env.example .env   # Edit with your Hugging Face token
+cp .env.example .env   # Edit with your OpenAI API key
 python3 app_improved.py
 
 # 2. Frontend (new terminal)
@@ -47,27 +49,35 @@ Open **http://localhost:3000**
 
 ---
 
+## AI Backends
+
+| Backend | Quality | Cost | Setup |
+|---------|---------|------|-------|
+| **OpenAI (ChatGPT)** | Excellent | ~$0.002/msg | Set `AI_BACKEND=openai` + API key |
+| **Hugging Face API** | Moderate | Free | Set `AI_BACKEND=huggingface` + API key |
+| **Local trained model** | Depends on training | Free | Set `AI_BACKEND=local` + train model |
+| **Template fallback** | Basic | Free | Set `AI_BACKEND=fallback` |
+
+---
+
 ## Project Structure
 
 ```
 MIDPOINT/
 ├── backend/
 │   ├── app_improved.py            # Flask API server
-│   ├── ai_model_free.py           # Hugging Face model integration
+│   ├── ai_model_free.py           # AI model integration (OpenAI/HF/local)
 │   ├── enhanced_safety_detector.py # 11-layer crisis detection
-│   ├── safety_detector.py         # Basic safety detection
 │   ├── context_manager.py         # Session management
 │   ├── cultural_adapter.py        # Sri Lankan cultural adaptation
-│   ├── response_generator.py      # Template fallback responses
 │   ├── config.py                  # Configuration
 │   ├── train_model.py             # Model training script
-│   ├── train_model_lora.py        # LoRA fine-tuning script
 │   ├── test_mvp.py                # Automated test suite
 │   └── requirements.txt           # Python dependencies
 ├── frontend/
 │   ├── src/
 │   │   ├── App.js                 # Main application
-│   │   ├── App.css                # Styling
+│   │   ├── App.css                # Retro pixel theme
 │   │   ├── components/
 │   │   │   ├── ChatInterface.js   # Chat UI
 │   │   │   ├── MessageBubble.js   # Message display
@@ -78,13 +88,13 @@ MIDPOINT/
 │   │       └── api.js             # Backend API client
 │   └── package.json
 ├── data/
-│   ├── mental_health_dataset.json # Training dataset
-│   ├── crisis_patterns.json       # Crisis detection keywords
-│   ├── response_templates.json    # Response templates
-│   ├── cultural_templates.json    # Cultural context
-│   └── enhanced_crisis_patterns.json
+│   ├── mental_health_dataset.json  # Training dataset
+│   ├── enhanced_crisis_patterns.json # Crisis detection keywords
+│   ├── response_templates.json     # Fallback response templates
+│   └── cultural_templates.json     # Cultural context
 ├── scripts/
-│   └── expand_dataset.py          # Dataset generator (no API needed)
+│   └── expand_dataset.py          # Dataset generator
+├── GUIDE_OPENAI.md
 ├── GUIDE_MAC.md
 ├── GUIDE_WINDOWS.md
 ├── GUIDE_CLOUD_TRAINING.md

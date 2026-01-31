@@ -33,11 +33,10 @@ cultural_adapter = CulturalAdapter()
 # Track system status
 SYSTEM_STATUS = {
     'ai_enabled': ai_model.use_ai,
-    'model': os.getenv('HUGGINGFACE_MODEL', 'microsoft/DialoGPT-medium'),
-    'ai_backend': os.getenv('AI_BACKEND', 'huggingface'),
+    'ai_backend': os.getenv('AI_BACKEND', 'openai'),
     'safety_detection': 'active',
     'cultural_adaptation': 'active',
-    'version': '1.0.0-HF'
+    'version': '1.0.0'
 }
 
 @app.route('/api/chat', methods=['POST'])
@@ -316,7 +315,7 @@ if __name__ == '__main__':
     print("=" * 60)
     print("SafeMind AI - Mental Health Assistant")
     print("=" * 60)
-    print(f"AI Model: {SYSTEM_STATUS['model']}")
+    print(f"AI Backend: {SYSTEM_STATUS['ai_backend']}")
     print(f"AI Enabled: {SYSTEM_STATUS['ai_enabled']}")
     print(f"Safety Detection: {SYSTEM_STATUS['safety_detection']}")
     print(f"Cultural Adaptation: {SYSTEM_STATUS['cultural_adaptation']}")
