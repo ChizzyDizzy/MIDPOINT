@@ -1,5 +1,5 @@
 """
-SafeMind AI - Enhanced Safety Detector
+SafeMind - Enhanced Safety Detector
 Multi-layered crisis detection system with 9 detection layers
 """
 

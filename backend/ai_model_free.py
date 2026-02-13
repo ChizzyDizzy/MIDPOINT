@@ -1,10 +1,10 @@
 """
-SafeMind AI - AI Model Integration
+SafeMind - Response Generation System
 Supports multiple backends:
-1. OpenAI API (ChatGPT - recommended for best responses)
-2. Hugging Face Inference API (FREE tier)
+1. External NLP Service (recommended for best responses)
+2. Hugging Face Inference API
 3. Local Hugging Face models (offline)
-4. Template-based fallback (no API needed)
+4. Template-based fallback (no external service needed)
 """
 
 import os
@@ -16,23 +16,23 @@ import requests
 
 load_dotenv()
 
-class SafeMindAI:
+class ResponseEngine:
     def __init__(self):
-        """Initialize AI client"""
+        """Initialize response engine"""
 
-        # Determine which AI backend to use
-        self.ai_backend = os.getenv('AI_BACKEND', 'openai')
+        # Determine which backend mode to use
+        self.backend_mode = os.getenv('BACKEND_MODE', os.getenv('AI_BACKEND', 'openai'))
 
         # Initialize based on backend
-        if self.ai_backend == 'openai':
-            self._init_openai()
-        elif self.ai_backend == 'huggingface':
+        if self.backend_mode == 'openai':
+            self._init_external_service()
+        elif self.backend_mode == 'huggingface':
             self._init_huggingface()
-        elif self.ai_backend == 'local':
+        elif self.backend_mode == 'local':
             self._init_local_model()
         else:
             print("Using fallback mode - template-based responses")
-            self.use_ai = False
+            self.use_service = False
 
         # Load system prompt
         self.system_prompt = self._load_system_prompt()
@@ -44,39 +44,38 @@ class SafeMindAI:
         except Exception:
             self.templates = {}
 
-    def _init_openai(self):
-        """Initialize OpenAI API (ChatGPT)"""
-        self.openai_api_key = os.getenv('OPENAI_API_KEY', '')
+    def _init_external_service(self):
+        """Initialize external NLP service"""
+        self.service_api_key = os.getenv('SERVICE_API_KEY', os.getenv('OPENAI_API_KEY', ''))
 
-        if not self.openai_api_key or self.openai_api_key.startswith('sk-your'):
-            print("WARNING: No OpenAI API key found. Using fallback mode.")
-            print("Get an API key at: https://platform.openai.com/api-keys")
-            print("Then set OPENAI_API_KEY in your .env file")
-            self.use_ai = False
+        if not self.service_api_key or self.service_api_key.startswith('sk-your'):
+            print("WARNING: No service API key found. Using fallback mode.")
+            print("Set SERVICE_API_KEY in your .env file")
+            self.use_service = False
             return
 
-        self.openai_model = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
-        self.use_ai = True
-        print(f"OpenAI initialized with model: {self.openai_model}")
+        self.service_model = os.getenv('SERVICE_MODEL', os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo'))
+        self.use_service = True
+        print(f"External service initialized with model: {self.service_model}")
 
     def _init_huggingface(self):
-        """Initialize Hugging Face Inference API (FREE tier)"""
+        """Initialize Hugging Face Inference API"""
         api_key = os.getenv('HUGGINGFACE_API_KEY')
 
         if not api_key or api_key.startswith('hf_your'):
             print("WARNING: No Hugging Face API key found. Using fallback mode.")
-            print("Get a FREE API key at: https://huggingface.co/settings/tokens")
-            self.use_ai = False
+            print("Get an API key at: https://huggingface.co/settings/tokens")
+            self.use_service = False
             return
 
         self.hf_api_key = api_key
         self.hf_model = os.getenv('HUGGINGFACE_MODEL', 'microsoft/DialoGPT-medium')
         self.hf_api_url = f"https://api-inference.huggingface.co/models/{self.hf_model}"
-        self.use_ai = True
+        self.use_service = True
         print(f"Hugging Face initialized with model: {self.hf_model}")
 
     def _init_local_model(self):
-        """Initialize local Hugging Face model (completely FREE, offline)"""
+        """Initialize local Hugging Face model (offline)"""
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
             import torch
@@ -89,19 +88,19 @@ class SafeMindAI:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
             self.local_model.to(self.device)
 
-            self.use_ai = True
+            self.use_service = True
             print(f"Local model loaded on {self.device}")
 
         except ImportError:
             print("WARNING: transformers not installed. Run: pip install transformers torch")
-            self.use_ai = False
+            self.use_service = False
         except Exception as e:
             print(f"WARNING: Failed to load local model: {e}")
-            self.use_ai = False
+            self.use_service = False
 
     def _load_system_prompt(self) -> str:
-        """Load the system prompt for SafeMind AI"""
-        return """You are SafeMind, a compassionate and culturally-aware mental health support chatbot designed specifically for people in Sri Lanka.
+        """Load the system prompt for SafeMind"""
+        return """You are SafeMind, a compassionate and culturally-aware mental health support system designed specifically for people in Sri Lanka.
 
 Your role:
 1. Provide empathetic, non-judgmental emotional support
@@ -144,48 +143,48 @@ Remember: You are a supportive companion, NOT a replacement for professional men
         risk_level: str = 'none',
         emotion: str = 'neutral'
     ) -> str:
-        """Generate AI response to user message"""
-        if not self.use_ai:
+        """Generate response to user message"""
+        if not self.use_service:
             return self._generate_fallback_response(user_message, emotion)
 
         try:
-            if self.ai_backend == 'openai':
-                ai_response = self._generate_openai_response(
+            if self.backend_mode == 'openai':
+                response = self._generate_external_service_response(
                     user_message, context_summary, risk_level, emotion
                 )
-            elif self.ai_backend == 'huggingface':
-                ai_response = self._generate_huggingface_response(
+            elif self.backend_mode == 'huggingface':
+                response = self._generate_huggingface_response(
                     user_message, context_summary, risk_level, emotion
                 )
-            elif self.ai_backend == 'local':
-                ai_response = self._generate_local_response(
+            elif self.backend_mode == 'local':
+                response = self._generate_local_response(
                     user_message, context_summary, risk_level, emotion
                 )
             else:
-                ai_response = self._generate_fallback_response(user_message, emotion)
+                response = self._generate_fallback_response(user_message, emotion)
 
             # Validate response quality
-            if self._is_garbage_response(ai_response):
-                ai_response = self._generate_fallback_response(user_message, emotion)
+            if self._is_garbage_response(response):
+                response = self._generate_fallback_response(user_message, emotion)
 
             # Add safety resources for high-risk situations
             if risk_level in ['high', 'immediate']:
-                ai_response = self._add_crisis_response(ai_response, risk_level)
+                response = self._add_crisis_response(response, risk_level)
 
-            return ai_response
+            return response
 
         except Exception as e:
-            print(f"Error generating AI response: {e}")
+            print(f"Error generating response: {e}")
             return self._generate_fallback_response(user_message, emotion)
 
-    def _generate_openai_response(
+    def _generate_external_service_response(
         self,
         user_message: str,
         context_summary: Dict,
         risk_level: str,
         emotion: str
     ) -> str:
-        """Generate response using OpenAI ChatGPT API"""
+        """Generate response using external NLP service"""
         messages = [{"role": "system", "content": self.system_prompt}]
 
         # Add risk context if elevated
@@ -205,12 +204,12 @@ Remember: You are a supportive companion, NOT a replacement for professional men
         messages.append({"role": "user", "content": user_message})
 
         headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
+            "Authorization": f"Bearer {self.service_api_key}",
             "Content-Type": "application/json"
         }
 
         payload = {
-            "model": self.openai_model,
+            "model": self.service_model,
             "messages": messages,
             "max_tokens": 250,
             "temperature": 0.7,
@@ -228,11 +227,11 @@ Remember: You are a supportive companion, NOT a replacement for professional men
             result = response.json()
             return result['choices'][0]['message']['content'].strip()
         elif response.status_code == 401:
-            print("OpenAI API key is invalid. Check your OPENAI_API_KEY in .env")
+            print("Service API key is invalid. Check your SERVICE_API_KEY in .env")
         elif response.status_code == 429:
-            print("OpenAI rate limit reached. Using fallback.")
+            print("Service rate limit reached. Using fallback.")
         else:
-            print(f"OpenAI API error {response.status_code}: {response.text[:200]}")
+            print(f"Service API error {response.status_code}: {response.text[:200]}")
 
         return self._generate_fallback_response(user_message, emotion)
 

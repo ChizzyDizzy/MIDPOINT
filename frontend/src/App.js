@@ -11,7 +11,7 @@ function App() {
   return (
     <div className='App'>
       <header className='app-header'>
-        <h1> SafeMind AI </h1>{" "}
+        <h1> SafeMind </h1>{" "}
         <p> Your Compassionate Mental Health Companion </p>{" "}
       </header>
       <div className='app-container'>
