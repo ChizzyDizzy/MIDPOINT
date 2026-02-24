@@ -230,11 +230,49 @@ body {
     3px 3px 0px #c4b5fd;
 }
 
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.message.user .message-meta {
+  justify-content: flex-end;
+}
+
 .message-time {
   font-family: 'VT323', monospace;
   font-size: 0.9rem;
   color: #9ca3af;
-  margin-top: 4px;
+}
+
+.listen-button {
+  padding: 3px 10px;
+  background: linear-gradient(180deg, #ede9fe 0%, #ddd6fe 100%);
+  color: #5b21b6;
+  border: 2px solid #7c3aed;
+  box-shadow:
+    inset 1px 1px 0px #f5f3ff,
+    inset -1px -1px 0px #a78bfa,
+    1px 1px 0px #7c3aed;
+  font-family: 'VT323', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.1s;
+  letter-spacing: 0.5px;
+}
+
+.listen-button:hover {
+  background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%);
+  color: #4c1d95;
+}
+
+.listen-button:active {
+  box-shadow:
+    inset -1px -1px 0px #f5f3ff,
+    inset 1px 1px 0px #a78bfa;
+  transform: translate(1px, 1px);
 }
 
 /* ---- Input Area ---- */
