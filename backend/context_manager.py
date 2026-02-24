@@ -10,7 +10,11 @@ class ConversationContext:
         self.topics = []
         self.start_time = datetime.now()
         self.risk_history = []
-        
+
+    @property
+    def message_count(self):
+        return len(self.conversation_history)
+
     def add_message(self, message: str, response: str, emotion: str = 'neutral', risk_level: str = 'none'):
         """Add a message exchange to history"""
         entry = {

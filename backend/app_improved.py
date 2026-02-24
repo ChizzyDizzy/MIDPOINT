@@ -6,9 +6,11 @@ Mental Health AI Assistant with real AI model integration
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import uuid
+import time
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from textblob import TextBlob
 
 # Import improved components
 from enhanced_safety_detector import EnhancedSafetyDetector
@@ -38,6 +40,134 @@ SYSTEM_STATUS = {
     'cultural_adaptation': 'active',
     'version': '1.0.0'
 }
+
+# ---------- Response Quality Metrics ----------
+class ResponseMetrics:
+    """Track and compute response quality metrics for evaluation"""
+
+    def __init__(self):
+        self.interactions = []  # All tracked interactions
+
+    def evaluate_response(self, user_message: str, bot_response: str, safety_result: dict, ai_powered: bool, latency_ms: float) -> dict:
+        """Evaluate a single response and return per-message metrics"""
+        scores = {}
+
+        # 1. Relevance Score (keyword overlap between user message and response)
+        user_words = set(user_message.lower().split())
+        response_words = set(bot_response.lower().split())
+        # Remove stop words for a fairer comparison
+        stop_words = {'i', 'me', 'my', 'the', 'a', 'an', 'is', 'am', 'are', 'was',
+                      'were', 'be', 'been', 'to', 'of', 'and', 'in', 'that', 'it',
+                      'for', 'on', 'with', 'as', 'at', 'by', 'from', 'or', 'but',
+                      'not', 'you', 'your', 'do', 'did', 'have', 'has', 'had', 'so',
+                      'if', 'can', 'will', 'just', 'about', 'this', 'what', 'how'}
+        user_content = user_words - stop_words
+        response_content = response_words - stop_words
+        if user_content:
+            overlap = len(user_content & response_content)
+            scores['relevance'] = round(min(overlap / max(len(user_content), 1), 1.0), 3)
+        else:
+            scores['relevance'] = 0.5  # neutral for very short messages
+
+        # 2. Empathy Score (presence of empathetic language patterns)
+        empathy_markers = [
+            'i hear', 'i understand', 'i can sense', 'it sounds like',
+            'that must', 'it\'s okay', 'you\'re not alone', 'i\'m here',
+            'thank you for sharing', 'takes courage', 'feeling',
+            'i appreciate', 'it\'s understandable', 'your feelings',
+            'that\'s valid', 'completely normal', 'makes sense',
+        ]
+        response_lower = bot_response.lower()
+        empathy_count = sum(1 for m in empathy_markers if m in response_lower)
+        scores['empathy'] = round(min(empathy_count / 3, 1.0), 3)
+
+        # 3. Safety Accuracy (did the system detect and respond appropriately?)
+        crisis_keywords = ['suicide', 'kill myself', 'end my life', 'want to die', 'self-harm', 'hurt myself']
+        msg_lower = user_message.lower()
+        has_crisis_content = any(kw in msg_lower for kw in crisis_keywords)
+        detected_crisis = safety_result['risk_level'] in ['high', 'immediate']
+        if has_crisis_content and detected_crisis:
+            scores['safety_accuracy'] = 1.0  # True positive
+        elif not has_crisis_content and not detected_crisis:
+            scores['safety_accuracy'] = 1.0  # True negative
+        elif has_crisis_content and not detected_crisis:
+            scores['safety_accuracy'] = 0.0  # False negative (missed crisis)
+        else:
+            scores['safety_accuracy'] = 0.7  # False positive (over-cautious, acceptable)
+
+        # 4. Response Quality (length, sentiment appropriateness, no garbage)
+        quality = 1.0
+        if len(bot_response.strip()) < 20:
+            quality -= 0.4  # too short
+        if len(bot_response.strip()) > 1500:
+            quality -= 0.2  # too long
+        # Sentiment: response should generally be positive/supportive
+        blob = TextBlob(bot_response)
+        if blob.sentiment.polarity < -0.3:
+            quality -= 0.3  # overly negative response
+        scores['response_quality'] = round(max(quality, 0.0), 3)
+
+        # 5. Latency
+        scores['latency_ms'] = round(latency_ms, 1)
+
+        # 6. AI powered flag
+        scores['ai_powered'] = ai_powered
+
+        # 7. Overall composite score (weighted average)
+        scores['overall'] = round(
+            0.25 * scores['relevance'] +
+            0.25 * scores['empathy'] +
+            0.30 * scores['safety_accuracy'] +
+            0.20 * scores['response_quality'],
+            3
+        )
+
+        # Store interaction
+        self.interactions.append({
+            'timestamp': datetime.now().isoformat(),
+            'user_message': user_message[:100],  # truncate for storage
+            'scores': scores,
+            'risk_level': safety_result['risk_level'],
+        })
+
+        return scores
+
+    def get_aggregate_metrics(self) -> dict:
+        """Get aggregate metrics across all tracked interactions"""
+        if not self.interactions:
+            return {'message': 'No interactions tracked yet', 'total_interactions': 0}
+
+        all_scores = [i['scores'] for i in self.interactions]
+
+        def avg(key):
+            vals = [s[key] for s in all_scores if isinstance(s.get(key), (int, float))]
+            return round(sum(vals) / len(vals), 3) if vals else 0
+
+        # Risk level distribution
+        risk_counts = {}
+        for i in self.interactions:
+            rl = i['risk_level']
+            risk_counts[rl] = risk_counts.get(rl, 0) + 1
+
+        return {
+            'total_interactions': len(self.interactions),
+            'average_scores': {
+                'relevance': avg('relevance'),
+                'empathy': avg('empathy'),
+                'safety_accuracy': avg('safety_accuracy'),
+                'response_quality': avg('response_quality'),
+                'overall': avg('overall'),
+                'avg_latency_ms': avg('latency_ms'),
+            },
+            'ai_usage': {
+                'ai_powered_count': sum(1 for s in all_scores if s.get('ai_powered')),
+                'fallback_count': sum(1 for s in all_scores if not s.get('ai_powered')),
+            },
+            'risk_distribution': risk_counts,
+        }
+
+# Initialize metrics tracker
+metrics_tracker = ResponseMetrics()
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -72,6 +202,9 @@ def chat():
                 'error': 'Message cannot be empty',
                 'timestamp': datetime.now().isoformat()
             }), 400
+
+        # Start timing
+        start_time = time.time()
 
         # Step 1: Get or create conversation context
         context = context_manager.get_or_create_session(session_id)
@@ -109,7 +242,17 @@ def chat():
         # Step 5: Cultural adaptation
         final_response = cultural_adapter.adapt_response(base_response, culture)
 
-        # Step 6: Update context with this interaction
+        # Step 6: Measure response time and evaluate quality
+        latency_ms = (time.time() - start_time) * 1000
+        response_scores = metrics_tracker.evaluate_response(
+            user_message=message,
+            bot_response=final_response,
+            safety_result=safety_result,
+            ai_powered=ai_powered,
+            latency_ms=latency_ms
+        )
+
+        # Step 7: Update context with this interaction
         context.add_message(
             message,
             final_response,
@@ -117,7 +260,7 @@ def chat():
             risk_level=safety_result['risk_level']
         )
 
-        # Step 7: Return response
+        # Step 8: Return response
         return jsonify({
             'response': final_response,
             'session_id': session_id,
@@ -126,6 +269,7 @@ def chat():
                 'requires_intervention': safety_result['requires_intervention'],
                 'confidence': safety_result['confidence']
             },
+            'metrics': response_scores,
             'timestamp': datetime.now().isoformat(),
             'ai_powered': ai_powered,
             'message_count': context.message_count
@@ -226,6 +370,18 @@ def get_resources():
     resources.update(cultural_resources)
 
     return jsonify(resources)
+
+
+@app.route('/api/metrics', methods=['GET'])
+def get_metrics():
+    """
+    Get response quality metrics - useful for viva demonstration
+    Shows: relevance, empathy, safety accuracy, response quality, overall score
+    """
+    return jsonify({
+        'metrics': metrics_tracker.get_aggregate_metrics(),
+        'timestamp': datetime.now().isoformat()
+    })
 
 
 @app.route('/api/health', methods=['GET'])
