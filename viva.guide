@@ -1,0 +1,522 @@
+# SafeMind AI - Viva Preparation Guide
+# BSc Software Engineering - Thesis Project Viva
+
+---
+
+## MACBOOK SETUP GUIDE (OpenAI API Version)
+
+### Prerequisites
+- macOS with Terminal
+- Python 3.x (check: `python3 --version`)
+- Node.js 16+ and npm (check: `node --version && npm --version`)
+- An OpenAI API key from https://platform.openai.com/api-keys
+
+### Step 1: Clone / Navigate to the Project
+```bash
+cd /path/to/MIDPOINT
+```
+
+### Step 2: Backend Setup (Terminal 1)
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Open `.env` and set your values:
+```
+AI_BACKEND=openai
+OPENAI_API_KEY=sk-your-actual-key-here
+OPENAI_MODEL=gpt-3.5-turbo
+FLASK_SECRET_KEY=any-random-string-here
+FLASK_ENV=development
+FLASK_DEBUG=True
+CRISIS_DETECTION_THRESHOLD=0.7
+ENABLE_AI_RESPONSES=True
+DEFAULT_CULTURE=south_asian
+```
+
+Start the backend:
+```bash
+python3 app_improved.py
+# Backend runs on http://localhost:5000
+```
+
+### Step 3: Frontend Setup (Terminal 2)
+```bash
+cd frontend
+npm install
+npm start
+# Opens http://localhost:3000 in your browser automatically
+```
+
+### Step 4: Verify It Works
+```bash
+# In Terminal 3 - health check
+curl http://localhost:5000/api/health
+
+# Test chat endpoint
+curl -X POST http://localhost:5000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "I feel anxious about my exams"}'
+```
+
+### Troubleshooting on macOS
+- If `pip install` fails: `pip3 install -r requirements.txt`
+- If TextBlob errors: `python3 -m textblob.download_corpora`
+- If CORS error in browser: ensure backend is running BEFORE starting frontend
+- If port 5000 is taken (macOS AirPlay): change port in `app_improved.py` line 326 to 5001
+- If npm start fails: `rm -rf node_modules && npm install`
+
+---
+
+## VIVA PREPARATION - TECHNICAL Q&A
+
+---
+
+### SECTION 1: PROJECT OVERVIEW
+
+**Q: Can you describe what SafeMind AI is and what problem it solves?**
+
+SafeMind AI is an AI-powered mental health support chatbot specifically designed for Sri Lankan users. The core problem it addresses is the significant lack of accessible mental health support in Sri Lanka, compounded by strong cultural stigma around seeking help. Many people — especially young people facing A/L exam pressure, family expectations, and career stress — have no private, stigma-free first point of contact. SafeMind provides a 24/7, empathetic, culturally-aware conversational AI that can detect when users are in crisis and direct them to real resources like the national hotline (1333). It acts as a first-line supportive companion, not a replacement for professional care.
+
+---
+
+**Q: What makes this different from just using ChatGPT directly?**
+
+Three things differentiate SafeMind from a raw ChatGPT interaction:
+1. **Safety Layer**: A dedicated 11-layer crisis detection system runs on every message LOCALLY before the AI responds. This cannot be bypassed or hallucinated away by the LLM.
+2. **Cultural Specificity**: The system prompt and cultural adapter are tuned specifically to Sri Lankan context — A/L exams, family duty, arranged marriage pressure, Buddhist/Hindu/Muslim/Christian coping mechanisms, and local hotlines.
+3. **Context Management**: The system tracks conversation history, risk trends (escalating/stable/decreasing), and emotional states across the session, feeding relevant context back to the AI for more coherent, progressive conversations.
+
+---
+
+### SECTION 2: SYSTEM ARCHITECTURE
+
+**Q: Walk me through the architecture of the system.**
+
+The system is a decoupled two-tier architecture:
+- **Frontend**: React 18 SPA running on port 3000. Handles UI, session ID management, mood tracking, and safety alert modals.
+- **Backend**: Python Flask API running on port 5000. Houses all the logic — safety detection, AI integration, context management, and cultural adaptation.
+
+Communication is via REST API using Axios on the frontend. The frontend sends a POST to `/api/chat` with the message and session_id. The backend processes it through a 6-step pipeline and returns a structured JSON response.
+
+---
+
+**Q: Explain the 6-step request processing pipeline.**
+
+When a message hits `POST /api/chat` in `app_improved.py`:
+1. **Input Validation** — check message is not empty, assign session UUID if not provided
+2. **Context Retrieval** — `ContextManager.get_or_create_session()` retrieves or initialises conversation context
+3. **Safety Detection** — `EnhancedSafetyDetector.detect_crisis()` runs 11 layers of analysis. This is always local, always first.
+4. **AI Response Generation** — `SafeMindAI.generate_response()` calls OpenAI with the message, context history, and risk level. Falls back to templates if AI fails.
+5. **Safety Intervention** — If `requires_intervention=True`, the safety message (with hotlines) is prepended to the AI response
+6. **Cultural Adaptation** — `CulturalAdapter.adapt_response()` applies South Asian cultural framing to the response
+
+The result is a JSON object with: response, session_id, safety metadata (risk_level, confidence, requires_intervention), timestamp, and ai_powered flag.
+
+---
+
+**Q: Why did you separate the frontend and backend rather than using a monolithic app?**
+
+Separation of concerns and flexibility. A decoupled architecture means:
+- The frontend (React) can be updated or replaced independently without touching backend logic
+- The backend can serve multiple frontends (web, mobile) from the same API
+- Safety detection and AI logic are centralised in the backend, not scattered across client code
+- It mirrors real-world professional software architecture
+
+---
+
+**Q: Why Flask rather than Django or FastAPI?**
+
+Flask was chosen because it is lightweight and unopinionated — perfect for a focused API with a small number of routes. This project has 7 API endpoints, not a complex web application needing Django's ORM or admin panel. FastAPI would also have been appropriate (and offers async + auto-docs), but Flask is more universally familiar in academic contexts and had no performance bottleneck given the low concurrency of a thesis demo.
+
+---
+
+**Q: Why React for the frontend?**
+
+React is the industry-standard for building component-based interactive UIs. The chat interface requires real-time state updates (messages appearing, typing indicators, mood chart updating) which React's `useState` and `useEffect` hooks handle elegantly. The component hierarchy (App → ChatInterface → MessageBubble/SafetyAlert, MoodTracker, ResourcePanel) is clean and maintainable.
+
+---
+
+**Q: Why is there no database?**
+
+This is an intentional design decision for the MVP/thesis scope. Conversation context is stored in-memory (Python dictionaries in `ContextManager`) keyed by session UUID. The trade-offs are:
+- **Pros**: Faster retrieval, simpler setup, no data persistence risk (privacy benefit — sessions disappear when server restarts)
+- **Cons**: Sessions lost on server restart, no analytics, doesn't scale horizontally
+
+For production, a database like PostgreSQL or Redis would be used for session persistence. This was explicitly out of scope for the thesis deliverable.
+
+---
+
+### SECTION 3: AI & OPENAI INTEGRATION
+
+**Q: How does the OpenAI integration work technically?**
+
+In `ai_model_free.py`, the `_generate_openai_response()` method constructs a messages array for the Chat Completions API:
+1. A `system` role message containing the SafeMind system prompt (defines persona, cultural context, rules)
+2. Optionally a second `system` message flagging the current risk level to guide tone
+3. Up to the last 3 exchanges from conversation history (as `user`/`assistant` pairs)
+4. The current `user` message
+
+This is sent via `requests.post()` to `https://api.openai.com/v1/chat/completions` with the Bearer token. Parameters: `max_tokens=250`, `temperature=0.7`, `top_p=0.9`.
+
+---
+
+**Q: What is the system prompt and why is it important?**
+
+The system prompt (loaded by `_load_system_prompt()`) is the foundational instruction set given to GPT on every request. It defines:
+- SafeMind's persona: compassionate, non-judgmental, culturally-aware
+- Hard rules: NEVER diagnose, NEVER prescribe medication
+- Sri Lankan cultural context: A/L exam pressure, family-centric values, stigma, multi-religious society
+- Communication style: use "I" statements, ask open-ended questions, keep responses concise (2-4 sentences)
+- Emergency resources to mention when needed: 1333, 1926, 119, Sumithrayo 011-2696666
+
+It is critical because it constrains GPT's behaviour specifically for this use case, preventing generic or inappropriate responses.
+
+---
+
+**Q: Why temperature=0.7 and max_tokens=250?**
+
+- `temperature=0.7`: Balances creativity with coherence. Lower values (0.2-0.3) produce repetitive, robotic responses. Higher values (0.9-1.0) produce too much randomness, which is inappropriate for mental health support. 0.7 gives warm, varied, but sensible responses.
+- `max_tokens=250`: Mental health responses should be concise — 2-4 sentences as specified in the system prompt. Long responses can overwhelm vulnerable users. 250 tokens (~180-200 words) is enough to be empathetic without being overwhelming.
+- `top_p=0.9`: Nucleus sampling keeps only the top 90% probability tokens, filtering out low-probability (potentially incoherent) outputs while maintaining variety.
+
+---
+
+**Q: What happens if the OpenAI API call fails?**
+
+The system has graceful degradation. If the API call fails (network error, rate limit, invalid key), the exception is caught in `generate_response()`, and `_generate_fallback_response()` is called instead. This method uses keyword matching to categorise the message (anxiety, depression, stress, crisis, etc.) and returns a randomly selected template response from `data/response_templates.json`. The `ai_powered` flag in the response JSON is set to `False` so the status is transparent.
+
+---
+
+**Q: Why gpt-3.5-turbo rather than gpt-4?**
+
+Cost-effectiveness. gpt-3.5-turbo costs ~$0.002 per 1K tokens versus ~$0.03 for gpt-4 — roughly 15x cheaper. For a thesis demo, where the volume of messages is low, gpt-3.5-turbo provides excellent quality responses. The system also supports `gpt-4o-mini` and `gpt-4o` as configurable options via the `OPENAI_MODEL` environment variable, so it is easy to upgrade.
+
+---
+
+**Q: How does the system maintain conversation context across multiple messages?**
+
+The `ConversationContext` class (in `context_manager.py`) stores:
+- Full conversation history (timestamped user messages + bot responses)
+- Emotional state history per message
+- Risk level history per message
+
+When generating a response, `get_context_summary()` returns the last 3 messages. These are injected into the OpenAI messages array as prior `user`/`assistant` turns, giving the model conversational memory. The frontend maintains the `session_id` in React state and sends it with every request.
+
+---
+
+### SECTION 4: SAFETY DETECTION SYSTEM
+
+**Q: Explain the 11-layer safety detection system.**
+
+The `EnhancedSafetyDetector` in `enhanced_safety_detector.py` runs these layers in order:
+
+| Layer | Method | What it checks | Weight |
+|-------|--------|---------------|--------|
+| 1 | Immediate keywords | "suicide", "end my life", "kill myself" | 1.0 |
+| 2 | High risk keywords | "self-harm", "hopeless", "worthless" | 1.0 |
+| 3 | Medium risk keywords | "depressed", "panic attacks" | 0.65 |
+| 4 | Low risk keywords | "anxious", "stressed", "sad" | 0.35 |
+| 5 | Regex pattern matching | "I.*want.*to.*die" patterns | 0.85 |
+| 6 | Sentiment analysis | TextBlob polarity < -0.5 | 0.3 |
+| 7 | Contextual indicators | "hopeless", "isolation", "burden" | 0.75 |
+| 8 | Temporal urgency | "tonight", "right now", "today" | 0.95 |
+| 9 | Planning indicators | "plan", "method", "decided to" | 1.0 |
+| 10 | Means access | "pills", "rope", "bridge" | 1.0 |
+| 11 | Cultural pressure | "family expects", "career pressure" | 0.35 |
+
+Each active layer contributes a weighted score. The maximum weighted score determines the risk level: ≥0.9 = immediate, ≥0.7 = high, ≥0.45 = medium, ≥0.2 = low.
+
+---
+
+**Q: Why use a weighted multi-layer approach rather than a simple keyword list?**
+
+A simple keyword list would generate too many false positives and miss contextual nuance. For example, "I want to die" vs "I want to die from embarrassment" — the second is not a crisis. The multi-layer approach:
+1. Handles **contextual ambiguity** by combining keyword presence with sentiment analysis and contextual indicators
+2. Allows **partial signals** — elevated sentiment alone doesn't trigger intervention, but combined with temporal urgency it can
+3. Gives **graduated responses** — not everything is "immediate crisis". Low-risk messages get validation, medium-risk gets resources listed, high/immediate get full intervention
+
+---
+
+**Q: What does "requires_intervention" mean and what triggers it?**
+
+`requires_intervention = True` when risk_level is `'high'` or `'immediate'`. This flag causes two things in the pipeline:
+1. The backend prepends the safety hotline message to the AI response
+2. The frontend triggers the `SafetyAlert` modal component (the popup with 1333, 1926, 119 numbers)
+
+For "immediate" risk, the safety message says "Please reach out for help RIGHT NOW" and lists all three hotlines plus emergency services.
+
+---
+
+**Q: How does TextBlob sentiment analysis work in this context?**
+
+`TextBlob(text).sentiment.polarity` returns a value from -1.0 (very negative) to +1.0 (very positive). In Layer 6, if polarity < -0.5, it contributes a weight of 0.3 to the risk score. This handles emotionally distressed messages that don't contain explicit crisis keywords — e.g., "Everything feels pointless and grey and I don't see any light anymore" scores very negatively on TextBlob even without trigger words.
+
+---
+
+**Q: What are the limitations of your safety detection system?**
+
+1. **False negatives**: Indirect expressions like "I just want to sleep forever" or culturally coded distress in Sinhala/Tamil are not caught by English keyword matching.
+2. **False positives**: "I killed it in my exam today" contains "kill" and could mistakenly score higher risk.
+3. **Context blindness**: Each message is analysed somewhat independently. A series of mildly concerning messages might each score "low" even if the trend is clearly worsening — though the `_calculate_risk_trend()` method partially addresses this.
+4. **No multilingual support**: Crisis expressions in Sinhala or Tamil are not detected.
+
+---
+
+**Q: How does the system handle risk trend escalation?**
+
+`_calculate_risk_trend()` in `context_manager.py` maps risk levels to numeric values (none=0, low=1, medium=2, high=3, immediate=4) and compares the last two risk scores in the session history. If the current score is higher than the previous one, it returns `'escalating'`. This trend is included in the context summary fed to the AI, which can then adjust its tone — being more proactive and cautious when it sees an escalating trend.
+
+---
+
+### SECTION 5: CULTURAL ADAPTATION
+
+**Q: How does the cultural adaptation work?**
+
+The `CulturalAdapter` class loads `data/cultural_templates.json` and its `adapt_response()` method can:
+1. Add a culturally appropriate formal greeting at conversation start
+2. Append family-oriented support suggestions when "support" is mentioned (since family is central in South Asian culture)
+3. Include spiritual coping suggestions (relevant given Buddhism, Hinduism, Islam, Christianity are all practiced in Sri Lanka)
+
+The default culture is `south_asian` (configurable via `.env`). The cultural context is also embedded directly into the OpenAI system prompt, so GPT itself understands A/L exam pressure, arranged marriage expectations, and the stigma barrier to seeking professional help.
+
+---
+
+**Q: Why is cultural adaptation important for a mental health chatbot?**
+
+Mental health expression and help-seeking behaviour is deeply cultural. In Sri Lanka:
+- Talking about mental health openly is stigmatised ("what will people say")
+- Family is often both the source of pressure AND the primary support system
+- Academic failure (A/L, O/L) is experienced as a catastrophic life event
+- Religious faith is a genuine coping mechanism for many
+- Responses that ignore these realities will feel tone-deaf and reduce trust
+
+A Western-generic chatbot saying "set healthy boundaries with your parents" is culturally inappropriate and potentially harmful in a context where family hierarchy is deeply valued. SafeMind acknowledges and works within the cultural framework.
+
+---
+
+### SECTION 6: FRONTEND
+
+**Q: Walk me through the React component structure.**
+
+```
+App.js (root)
+ ├── state: showResources, moodData
+ ├── ChatInterface.js
+ │    ├── state: messages, inputText, isTyping, sessionId, showSafetyAlert, safetyData
+ │    ├── MessageBubble.js  (renders each message)
+ │    └── SafetyAlert.js    (modal on high/immediate risk)
+ ├── MoodTracker.js         (recharts LineChart of mood over conversation)
+ └── ResourcePanel.js       (emergency contacts, self-help resources)
+```
+
+`ChatInterface` is the core component — it manages the session, calls the API, and coordinates safety alert display. `App` manages higher-level state like mood data (passed up via the `onMoodUpdate` callback) and the resource panel toggle.
+
+---
+
+**Q: How does the frontend handle session management?**
+
+On first message send, `sessionId` state is `null`. The backend generates a UUID and returns it in the response. `ChatInterface.js` (line 56) checks `if (!sessionId)` and stores it in state with `setSessionId()`. All subsequent messages include this session_id in the request body, allowing the backend to retrieve the conversation context.
+
+---
+
+**Q: How does the typing indicator work?**
+
+`isTyping` state is set to `true` immediately when the user submits a message. The chat renders a `typing-indicator` div with three animated dots. The actual bot response is added after a `setTimeout` of 1000ms to simulate natural typing delay, at which point `isTyping` is set back to `false`. This is purely cosmetic — the API response has already arrived; the delay improves UX.
+
+---
+
+**Q: Why is the ChatInterface written with React.createElement instead of JSX?**
+
+This is a valid observation. The ChatInterface component uses `React.createElement()` calls rather than JSX syntax. This could be due to a build configuration that didn't process JSX in that specific file, or a deliberate choice to avoid requiring the Babel JSX transform. Functionally it is identical — JSX is just syntactic sugar that compiles to `React.createElement()` calls anyway. In contrast, `SafetyAlert.js` uses JSX normally.
+
+---
+
+**Q: How does the mood tracker work?**
+
+`MoodTracker.js` renders a Recharts `LineChart`. Each time the API returns a response, `ChatInterface` calls `onMoodUpdate()` with a mood object `{ timestamp, sentiment }`. The `App` component appends this to the `moodData` array which is passed as `data` prop to `MoodTracker`. Currently, sentiment is set to either `'neutral'` or `'concerned'` based on risk level — this could be extended to use the actual TextBlob polarity score for more granular tracking.
+
+---
+
+### SECTION 7: TESTING
+
+**Q: How did you test the system?**
+
+Testing has three layers:
+1. **Automated test suite** (`backend/test_mvp.py`): 8 test cases covering the full risk spectrum — from positive progress to immediate suicidal ideation. Each test runs the full pipeline (safety detection → AI response → cultural adaptation) and compares actual risk level to expected. Results are saved to `test_results.json`.
+2. **Manual UI testing**: Via the React frontend at `http://localhost:3000` — testing the full user experience including Safety Alert modals, mood tracking, and resource panel.
+3. **API endpoint testing**: Via `curl` or Postman against the `/api/test` endpoint which returns the full input→process→output breakdown.
+
+---
+
+**Q: What are your 8 test cases and what do they test?**
+
+| # | Category | Input | Expected Risk |
+|---|----------|-------|--------------|
+| 1 | Low Risk | "I feel anxious about my exam tomorrow" | low |
+| 2 | Medium Risk | "I feel sad all the time and nothing makes me happy" | medium |
+| 3 | High Risk | "I feel hopeless and like nothing will ever get better" | high |
+| 4 | Immediate | "I want to end my life, I can't go on" | immediate |
+| 5 | No Risk | "I tried breathing exercises and they helped!" | none |
+| 6 | Self-Harm | "I hurt myself when things get too much" | high |
+| 7 | Stress | "Work is really stressful and overwhelming" | low |
+| 8 | Cultural | "My family expects me to become a doctor but I want art" | low |
+
+These cover: the full 5-level risk spectrum, cultural context, positive outcomes, and self-harm detection.
+
+---
+
+**Q: How do you measure the accuracy of the system?**
+
+Accuracy is measured as: `(passed_tests / total_tests) * 100`. A test passes when the actual detected risk level matches the expected risk level exactly. The system also reports confidence scores (0.0-1.0) and trigger keywords for each detection, allowing qualitative analysis of WHY a decision was made.
+
+---
+
+### SECTION 8: DATA & TRAINING
+
+**Q: What is the dataset used for?**
+
+`data/mental_health_dataset.json` contains 4000+ conversation samples (input + ideal response + category + risk_level). It was used to design the response templates and, optionally, to fine-tune a local DialoGPT model (`backend/train_model.py`). For the OpenAI backend, the dataset is not directly used at inference time — GPT's pre-trained knowledge is used instead, guided by the system prompt.
+
+---
+
+**Q: How was the dataset generated?**
+
+Via `scripts/expand_dataset.py` — a template expansion script that requires no API calls. It takes seed conversation templates and expands them with variations in phrasing, emotion, and context across all categories (academic stress, family pressure, anxiety, depression, etc.). This allowed generating 4000+ samples without paying for AI generation.
+
+---
+
+**Q: Could you fine-tune the model on this data?**
+
+Yes. `backend/train_model.py` uses Hugging Face's `transformers` library to fine-tune `microsoft/DialoGPT-small` or `DialoGPT-medium` on the dataset. The training uses standard causal language modelling — the model learns to predict the ideal response given the user input. The fine-tuned model is saved to `./safemind-trained-model` and loaded via `AI_BACKEND=local` in `.env`. However, for this thesis, the OpenAI backend is recommended because fine-tuning DialoGPT on a CPU takes 60-90 minutes and quality is lower than GPT-3.5.
+
+---
+
+### SECTION 9: SECURITY & ETHICS
+
+**Q: How is the OpenAI API key protected?**
+
+The API key is stored in a `.env` file which is listed in `.gitignore` — it is never committed to the repository. It is loaded at runtime via `python-dotenv`. The `.env.example` file is committed with a placeholder (`sk-your-openai-api-key-here`) as a template. In production, keys would be managed via environment variables set at the deployment platform level (Heroku config vars, AWS Secrets Manager, etc.).
+
+---
+
+**Q: What ethical considerations did you make in building this?**
+
+1. **Not a replacement for professional care**: The system prompt explicitly instructs the AI never to diagnose or prescribe. Every high-risk response includes a recommendation to seek professional help.
+2. **Crisis hotlines always provided**: For high and immediate risk, the Sri Lankan hotlines (1333, 1926, 119, Sumithrayo) are always surfaced.
+3. **No data persistence**: Conversations are not stored to disk. When the server stops, all session data is cleared. This protects user privacy.
+4. **Safety detection is local**: Crisis detection doesn't depend on the AI model — it runs independently and can override AI responses. This means safety cannot be "confused" by the LLM.
+5. **Transparency**: The system identifies itself as SafeMind AI, not a human. Users know they are talking to an AI.
+6. **Cultural humility**: The system is designed FOR the Sri Lankan community, with awareness of specific pressures they face — not a Western-generic tool imposed on a different cultural context.
+
+---
+
+**Q: What are the limitations of using an AI chatbot for mental health support?**
+
+1. **Not a clinician**: Cannot conduct formal assessments, diagnose, or prescribe treatment
+2. **Hallucination risk**: LLMs can generate plausible-sounding but incorrect mental health advice
+3. **Language limitation**: Currently English only — excludes Sinhala and Tamil speakers
+4. **No persistent memory**: Sessions end when the browser closes; the AI forgets prior conversations
+5. **False negatives in crisis detection**: Culturally coded or indirect expressions of distress may not be caught
+6. **Connectivity dependency**: Requires internet for the OpenAI API; no offline support with the OpenAI backend
+7. **Not a substitute for emergency services**: The system can only direct users to call 119, it cannot call for help on their behalf
+
+---
+
+### SECTION 10: DESIGN DECISIONS & TRADE-OFFS
+
+**Q: Why four pluggable AI backends?**
+
+Flexibility for different deployment scenarios:
+- `openai`: Best quality, costs money per request — for demos and production
+- `huggingface`: Free tier via inference API — for low-budget deployment
+- `local`: Completely offline after model download — for privacy-sensitive deployment
+- `fallback`: Template-based, zero dependencies — always works, ensures the app never fully breaks
+
+This design also future-proofs the system — swapping to GPT-4 or a future open-source model only requires changing one environment variable.
+
+---
+
+**Q: Why use UUID for session IDs rather than user accounts/login?**
+
+Deliberate privacy choice. Requiring a login would associate mental health conversations with a persistent user identity — a serious privacy concern. UUIDs are:
+- Generated client-side and treated as anonymous identifiers
+- Not linked to any personal information
+- Disposable — lost when the browser session ends
+
+This is consistent with how tools like crisis text lines operate — anonymous, low-barrier to access.
+
+---
+
+**Q: How would you scale this system for real production use?**
+
+Several changes would be needed:
+1. **Database**: Replace in-memory sessions with Redis (for fast session retrieval) and PostgreSQL (for conversation history if users opt in)
+2. **Rate limiting**: Add per-IP rate limiting to prevent API cost abuse
+3. **Authentication**: Optional anonymous tokens or OAuth for users who want persistent history
+4. **Queue**: Use Celery/Redis queue for AI requests to handle concurrent users
+5. **Deployment**: Containerise with Docker, deploy backend on Heroku/Railway/AWS, frontend on Vercel/Netlify
+6. **Monitoring**: Add Sentry for error tracking, logging for crisis detection events (anonymised)
+7. **Multilingual**: Integrate Sinhala/Tamil NLP for crisis detection in local languages
+
+---
+
+**Q: What would you do differently if you were starting over?**
+
+1. Use **FastAPI** instead of Flask for built-in async support, automatic OpenAPI docs, and better type safety
+2. Add **persistent storage from day one** (even SQLite) to enable conversation history and analytics
+3. Include **multilingual support** from the start — Sinhala and Tamil are essential for genuine inclusivity
+4. Implement **proper evaluation metrics** — not just pass/fail on risk level but precision/recall/F1 for the safety detector
+5. Conduct **user testing** with actual Sri Lankan students/counsellors to validate the cultural framing
+6. Use **JSX consistently** across all React components instead of mixing React.createElement and JSX
+
+---
+
+### SECTION 11: QUICK TECHNICAL FACTS TO KNOW
+
+- Backend port: **5000** | Frontend port: **3000**
+- Session storage: **Python dict** in memory (ContextManager class)
+- Crisis detection: **always local**, never depends on AI API
+- AI API call: `https://api.openai.com/v1/chat/completions` with `gpt-3.5-turbo`
+- Max conversation history sent to AI: **last 3 exchanges** (last 5 stored)
+- Risk levels: `none → low → medium → high → immediate`
+- Risk thresholds: `immediate ≥ 0.9`, `high ≥ 0.7`, `medium ≥ 0.45`, `low ≥ 0.2`
+- NLP library for sentiment: **TextBlob** (polarity score -1.0 to +1.0)
+- Frontend state management: **React Hooks** (useState, useEffect, useRef)
+- HTTP client: **Axios** (frontend) | **requests** library (backend → OpenAI)
+- Dataset size: **4000+ samples** in `data/mental_health_dataset.json`
+- Test cases: **8 automated tests** in `backend/test_mvp.py`
+- Fallback mechanism: **keyword → template** from `data/response_templates.json`
+- Cultural default: **south_asian** (configurable via DEFAULT_CULTURE in .env)
+- Sri Lankan emergency numbers: **1333** (crisis), **1926** (mental health), **119** (emergency), **011-2696666** (Sumithrayo)
+- Safety intervention: prepended to AI response when risk is `high` or `immediate`
+
+---
+
+### SECTION 12: ANTICIPATED FOLLOW-UP QUESTIONS
+
+**Q: What is CORS and why do you need it?**
+Cross-Origin Resource Sharing. Since the React frontend (port 3000) makes HTTP requests to the Flask backend (port 5000), they are on different origins. Browsers block cross-origin requests by default. `Flask-CORS` with `supports_credentials=True` adds the necessary `Access-Control-Allow-Origin` headers to backend responses, allowing the frontend to communicate with it.
+
+**Q: What is python-dotenv and why use it?**
+`python-dotenv` loads environment variables from a `.env` file into `os.environ` at startup. This is the standard pattern for keeping secrets (API keys, secret keys) out of source code. The `load_dotenv()` call at the top of `app_improved.py` and `ai_model_free.py` ensures the variables are available before any class initialisation.
+
+**Q: What is uuid and how is it used?**
+`uuid.uuid4()` generates a random 128-bit universally unique identifier (e.g., `550e8400-e29b-41d4-a716-446655440000`). It is used to generate session IDs when none is provided by the client. The probability of collision is astronomically low (~1 in 5.3 × 10^36), making it effectively unique.
+
+**Q: What does `with torch.no_grad():` do in the local model?**
+It disables gradient computation during inference. Gradients are only needed during training (for backpropagation). Disabling them during inference reduces memory usage and speeds up computation significantly. It is standard practice for all PyTorch inference code.
+
+**Q: How does recharts work in MoodTracker?**
+Recharts is a React charting library built on D3.js. `MoodTracker` renders a `<LineChart>` with `moodData` as the data prop. Each data point has a `timestamp` (X-axis) and a mood score (Y-axis). The chart re-renders reactively whenever the `data` prop changes via React's state update cycle.
+
+**Q: What is the `_is_garbage_response()` method for?**
+When using local models (DialoGPT), the generated text can sometimes be incoherent — containing Reddit-style formatting, URLs, profanity, or just random characters. `_is_garbage_response()` checks for these indicators and if the response is deemed garbage, falls back to the template system. This quality gate doesn't apply to OpenAI responses which are reliable enough not to need it.
+
+---
+
+*Good luck in your viva tomorrow. You've built a genuinely meaningful project.*
