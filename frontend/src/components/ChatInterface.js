@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import SafetyAlert from "./SafetyAlert";
 import { sendMessage } from "../services/api";
+import { Bot } from "lucide-react";
 
 function ChatInterface(props) {
   const onMoodUpdate = props.onMoodUpdate;
@@ -126,10 +127,19 @@ function ChatInterface(props) {
           { className: "message bot" },
           React.createElement(
             "div",
-            { className: "typing-indicator" },
-            React.createElement("span", { className: "typing-dot" }),
-            React.createElement("span", { className: "typing-dot" }),
-            React.createElement("span", { className: "typing-dot" })
+            { className: "message-row" },
+            React.createElement(
+              "div",
+              { className: "bot-avatar" },
+              React.createElement(Bot, { size: 20 })
+            ),
+            React.createElement(
+              "div",
+              { className: "typing-indicator" },
+              React.createElement("span", { className: "typing-dot" }),
+              React.createElement("span", { className: "typing-dot" }),
+              React.createElement("span", { className: "typing-dot" })
+            )
           )
         ),
       React.createElement("div", { ref: messagesEndRef })

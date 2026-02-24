@@ -196,9 +196,44 @@ body {
   text-align: left;
 }
 
+.message-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.message.user .message-row {
+  justify-content: flex-end;
+}
+
+.bot-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(180deg, #9b7ed8 0%, #7c3aed 100%);
+  border: 2px solid #4c1d95;
+  box-shadow:
+    inset 1px 1px 0px #c4b5fd,
+    inset -1px -1px 0px #4c1d95,
+    2px 2px 0px #1e1b4b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.message-content {
+  min-width: 0;
+  max-width: 75%;
+}
+
+.message.user .message-content {
+  max-width: 75%;
+}
+
 .message-bubble {
   display: inline-block;
-  max-width: 75%;
   padding: 12px 16px;
   font-family: 'VT323', monospace;
   font-size: 1.25rem;
@@ -235,6 +270,7 @@ body {
   align-items: center;
   gap: 8px;
   margin-top: 4px;
+  flex-wrap: wrap;
 }
 
 .message.user .message-meta {
@@ -247,7 +283,33 @@ body {
   color: #9ca3af;
 }
 
+/* ---- Listen Controls ---- */
+
+.listen-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.voice-select {
+  padding: 2px 4px;
+  background: #f3f0ff;
+  color: #5b21b6;
+  border: 2px solid #7c3aed;
+  font-family: 'VT323', monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.voice-select:focus {
+  border-color: #f59e0b;
+}
+
 .listen-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 3px 10px;
   background: linear-gradient(180deg, #ede9fe 0%, #ddd6fe 100%);
   color: #5b21b6;
@@ -257,7 +319,7 @@ body {
     inset -1px -1px 0px #a78bfa,
     1px 1px 0px #7c3aed;
   font-family: 'VT323', monospace;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.1s;
   letter-spacing: 0.5px;
@@ -540,6 +602,29 @@ body {
     1px 1px 0px #7c3aed;
 }
 
+.resource-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.resource-link:hover {
+  text-decoration: underline;
+}
+
+.resource-link svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.resource-list li:hover .resource-link svg {
+  opacity: 1;
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 900px) {
@@ -554,7 +639,10 @@ body {
   .app-header h1 {
     font-size: 0.9rem;
   }
-  .message-bubble {
-    max-width: 90%;
+  .message-content {
+    max-width: 85%;
+  }
+  .message.user .message-content {
+    max-width: 85%;
   }
 }
