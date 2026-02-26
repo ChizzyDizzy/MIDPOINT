@@ -1,6 +1,6 @@
 """
-SafeMind AI - Improved Main Application
-Mental Health AI Assistant with real AI model integration
+SafeMind - Main Application
+Mental Health Support System with Multi-Backend Integration
 """
 
 from flask import Flask, request, jsonify, session
@@ -15,7 +15,7 @@ from textblob import TextBlob
 # Import improved components
 from enhanced_safety_detector import EnhancedSafetyDetector
 from context_manager import ContextManager
-from ai_model_free import SafeMindAI
+from response_engine_free import ResponseEngine
 from cultural_adapter import CulturalAdapter
 from config import Config
 
@@ -29,13 +29,13 @@ CORS(app, supports_credentials=True)
 # Initialize components
 safety_detector = EnhancedSafetyDetector()
 context_manager = ContextManager()
-ai_model = SafeMindAI()
+response_engine = ResponseEngine()
 cultural_adapter = CulturalAdapter()
 
 # Track system status
 SYSTEM_STATUS = {
-    'ai_enabled': ai_model.use_ai,
-    'ai_backend': os.getenv('AI_BACKEND', 'openai'),
+    'service_enabled': response_engine.use_service,
+    'backend_mode': os.getenv('BACKEND_MODE', os.getenv('AI_BACKEND', 'openai')),
     'safety_detection': 'active',
     'cultural_adaptation': 'active',
     'version': '1.0.0'
@@ -172,7 +172,7 @@ metrics_tracker = ResponseMetrics()
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """
-    Main chat endpoint - processes user message and generates AI response
+    Main chat endpoint - processes user message and generates response
 
     Request JSON:
     {
@@ -187,7 +187,7 @@ def chat():
         "session_id": str,
         "safety": dict,
         "timestamp": str,
-        "ai_powered": bool
+        "service_powered": bool
     }
     """
     try:
@@ -212,26 +212,26 @@ def chat():
         # Step 2: Safety detection (Critical - Multi-layered)
         safety_result = safety_detector.detect_crisis(message)
 
-        # Step 3: Generate AI response with context
+        # Step 3: Generate response with context
         context_summary = context.get_context_summary()
 
         try:
-            # Use AI model for response generation
-            ai_response = ai_model.generate_response(
+            # Use response engine for generation
+            bot_response = response_engine.generate_response(
                 user_message=message,
                 context_summary=context_summary,
                 risk_level=safety_result['risk_level'],
                 emotion='concerned' if safety_result['risk_level'] != 'none' else 'neutral'
             )
 
-            base_response = ai_response
-            ai_powered = True
+            base_response = bot_response
+            service_powered = True
 
         except Exception as e:
-            print(f"AI generation error: {e}")
+            print(f"Response generation error: {e}")
             # Fallback to template-based response
-            base_response = ai_model._generate_fallback_response(message, 'neutral')
-            ai_powered = False
+            base_response = response_engine._generate_fallback_response(message, 'neutral')
+            service_powered = False
 
         # Step 4: Add immediate safety response if needed
         if safety_result['requires_intervention']:
@@ -271,7 +271,7 @@ def chat():
             },
             'metrics': response_scores,
             'timestamp': datetime.now().isoformat(),
-            'ai_powered': ai_powered,
+            'service_powered': service_powered,
             'message_count': context.message_count
         })
 
@@ -421,7 +421,7 @@ def test_endpoint():
 
     # Process
     safety_result = safety_detector.detect_crisis(test_message)
-    ai_response = ai_model.generate_response(
+    bot_response = response_engine.generate_response(
         user_message=test_message,
         context_summary={},
         risk_level=safety_result['risk_level']
@@ -435,13 +435,13 @@ def test_endpoint():
 
     # Output
     output_data = {
-        'response': ai_response,
+        'response': bot_response,
         'risk_assessment': safety_result['risk_level'],
         'intervention_required': safety_result['requires_intervention']
     }
 
     return jsonify({
-        'test': 'SafeMind AI System Test',
+        'test': 'SafeMind System Test',
         'input': input_data,
         'process': process_data,
         'output': output_data,
@@ -469,10 +469,10 @@ def internal_error(error):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("SafeMind AI - Mental Health Assistant")
+    print("SafeMind - Mental Health Support System")
     print("=" * 60)
-    print(f"AI Backend: {SYSTEM_STATUS['ai_backend']}")
-    print(f"AI Enabled: {SYSTEM_STATUS['ai_enabled']}")
+    print(f"Backend Mode: {SYSTEM_STATUS['backend_mode']}")
+    print(f"Service Enabled: {SYSTEM_STATUS['service_enabled']}")
     print(f"Safety Detection: {SYSTEM_STATUS['safety_detection']}")
     print(f"Cultural Adaptation: {SYSTEM_STATUS['cultural_adaptation']}")
     print("=" * 60)

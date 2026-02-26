@@ -1,12 +1,12 @@
 """
-SafeMind AI - Testing Script
-Tests crisis detection, AI response generation, and cultural adaptation.
+SafeMind - Testing Script
+Tests crisis detection, response generation, and cultural adaptation.
 """
 
 import sys
 import json
 from datetime import datetime
-from ai_model_free import SafeMindAI
+from ai_model_free import ResponseEngine
 from enhanced_safety_detector import EnhancedSafetyDetector
 from cultural_adapter import CulturalAdapter
 
@@ -14,15 +14,15 @@ class SafeMindTester:
     def __init__(self):
         """Initialize testing components"""
         print("=" * 80)
-        print("SafeMind AI - Testing Suite")
+        print("SafeMind - Testing Suite")
         print("=" * 80)
         print("Initializing components...")
 
-        self.ai_model = SafeMindAI()
+        self.response_engine = ResponseEngine()
         self.safety_detector = EnhancedSafetyDetector()
         self.cultural_adapter = CulturalAdapter()
 
-        print(f"✓ AI Model initialized (AI Enabled: {self.ai_model.use_ai})")
+        print(f"✓ Response Engine initialized (Service Enabled: {self.response_engine.use_service})")
         print(f"✓ Safety Detector initialized")
         print(f"✓ Cultural Adapter initialized")
         print("=" * 80)
@@ -49,17 +49,17 @@ class SafeMindTester:
         print(f"    - Triggers: {safety_result['triggers']}")
         print(f"    - Requires Intervention: {safety_result['requires_intervention']}")
 
-        # Step 2: AI Response Generation
-        print(f"\n  Step 2: AI Response Generation")
+        # Step 2: Response Generation
+        print(f"\n  Step 2: Response Generation")
         try:
-            ai_response = self.ai_model.generate_response(
+            ai_response = self.response_engine.generate_response(
                 user_message=user_input,
                 context_summary={},
                 risk_level=safety_result['risk_level']
             )
             print(f"    - Response Generated: ✓")
             print(f"    - Response Length: {len(ai_response)} characters")
-            print(f"    - AI Powered: {self.ai_model.use_ai}")
+            print(f"    - AI Powered: {self.response_engine.use_ai}")
         except Exception as e:
             print(f"    - Error: {e}")
             ai_response = "Error generating response"
@@ -72,7 +72,7 @@ class SafeMindTester:
         # OUTPUT
         print(f"\n📤 OUTPUT:")
         print(f"\n{'-'*80}")
-        print(f"SafeMind AI Response:")
+        print(f"SafeMind Response:")
         print(f"{'-'*80}")
         print(final_response)
         print(f"{'-'*80}")

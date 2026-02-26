@@ -55,8 +55,8 @@ class ConversationContext:
         
         return 'stable'
     
-    def get_conversation_for_ai(self) -> str:
-        """Format conversation history for AI context"""
+    def get_conversation_for_context(self) -> str:
+        """Format conversation history for context summary"""
         if not self.conversation_history:
             return "This is the beginning of the conversation."
         
